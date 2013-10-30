@@ -9,9 +9,10 @@ repositories {
 }
 
 dependencies {
-    compile 'net.vrallev.android.library:android-base:1.2.3'
+    compile 'net.vrallev.android.library:android-base:1.2.4'
     compile 'de.greenrobot:eventbus:2.0.2'
     compile 'com.google.code.gson:gson:2.2.4'
+    compile 'com.android.support:support-v13:+'
 }
 
 android {

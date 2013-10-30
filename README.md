@@ -1,0 +1,1 @@
+An altimeter for Android. This is a project for my university.
