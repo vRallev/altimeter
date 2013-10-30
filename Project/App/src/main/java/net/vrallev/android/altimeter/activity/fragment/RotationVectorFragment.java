@@ -1,5 +1,6 @@
 package net.vrallev.android.altimeter.activity.fragment;
 
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import net.vrallev.android.altimeter.R;
+import net.vrallev.android.altimeter.activity.RotationVectorDemo;
 
 /**
  * @author Ralf Wondratschek
@@ -33,6 +35,12 @@ public class RotationVectorFragment extends AbstractSensorFragment {
         mTextViewZ = (TextView) view.findViewById(R.id.textView_z);
         mTextViewExtra1 = (TextView) view.findViewById(R.id.textView_extra1);
         mTextViewExtra2 = (TextView) view.findViewById(R.id.textView_extra2);
+        view.findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getActivity(), RotationVectorDemo.class));
+            }
+        });
 
         return view;
     }

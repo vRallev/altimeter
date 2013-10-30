@@ -59,4 +59,13 @@
             android:textAppearance="?android:attr/textAppearanceLarge"
             tools:text="Extra 2" />
 
+    <Button
+            android:id="@+id/button"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_below="@id/textView_extra2"
+            android:layout_centerHorizontal="true"
+            android:text="@string/open_demo"
+            android:layout_marginTop="24dp"/>
+
 </RelativeLayout>
