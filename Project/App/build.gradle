@@ -1,0 +1,25 @@
+apply plugin: 'android'
+
+repositories {
+    mavenCentral()
+
+    maven {
+        url 'https://raw.github.com/vRallev/mvn-repo/master/'
+    }
+}
+
+dependencies {
+    compile 'net.vrallev.android.library:android-base:1.2.3'
+    compile 'de.greenrobot:eventbus:2.0.2'
+    compile 'com.google.code.gson:gson:2.2.4'
+}
+
+android {
+    compileSdkVersion 18
+    buildToolsVersion "18.1.1"
+
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion 18
+    }
+}
