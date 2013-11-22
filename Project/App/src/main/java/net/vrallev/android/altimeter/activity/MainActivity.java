@@ -3,13 +3,13 @@ package net.vrallev.android.altimeter.activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.os.Bundle;
-import android.support.v13.app.FragmentPagerAdapter;
+import android.support.v13.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import net.vrallev.android.altimeter.R;
+import net.vrallev.android.altimeter.activity.fragment.AbstractSensorFragment;
 import net.vrallev.android.altimeter.activity.fragment.AccelerometerFragment;
 import net.vrallev.android.altimeter.activity.fragment.GravityFragment;
 import net.vrallev.android.altimeter.activity.fragment.GyroscopeFragment;
@@ -17,30 +17,79 @@ import net.vrallev.android.altimeter.activity.fragment.LinearAccelerationFragmen
 import net.vrallev.android.altimeter.activity.fragment.RotationVectorFragment;
 import net.vrallev.android.base.BaseActivity;
 
+@SuppressWarnings("ConstantConditions")
 public class MainActivity extends BaseActivity {
+
+    private boolean mLogging;
+    private int mPosition;
+
+    private SectionsPagerAdapter mSectionsPagerAdapter;
+    private ViewPager mViewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        SectionsPagerAdapter mSectionsPagerAdapter = new SectionsPagerAdapter(getFragmentManager());
+        mSectionsPagerAdapter = new SectionsPagerAdapter(getFragmentManager());
 
-        ViewPager mViewPager = (ViewPager) findViewById(R.id.pager);
+        mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
-        /*
-         * http://developer.android.com/guide/topics/sensors/sensors_overview.html
-         * CHECK Accelerometer
-         * CHECK Gravity
-         * CHECK Gyroscope
-         * CHECK Linear Acceleration
-         * Orientation -> Deprecated
-         * CHECK Rotation Vector
-         */
+        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                setLoggingEnabled(false, mPosition);
+                mPosition = position;
+            }
+        });
     }
 
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.action_log_start).setVisible(!mLogging);
+        menu.findItem(R.id.action_log_stop).setVisible(mLogging);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_log_start:
+                setLoggingEnabled(true, mPosition);
+                return true;
+
+            case R.id.action_log_stop:
+                setLoggingEnabled(false, mPosition);
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void setLoggingEnabled(boolean enabled, int position) {
+        if (mLogging == enabled) {
+            return;
+        }
+
+        Object fragment = mSectionsPagerAdapter.instantiateItem(mViewPager, position);
+        if (fragment instanceof AbstractSensorFragment) {
+            ((AbstractSensorFragment) fragment).setLoggingEnabled(enabled);
+        }
+
+        mLogging = enabled;
+        invalidateOptionsMenu();
+    }
+
+    public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
 
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -85,21 +134,4 @@ public class MainActivity extends BaseActivity {
             return null;
         }
     }
-
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-
-        public PlaceholderFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            return rootView;
-        }
-    }
-
 }

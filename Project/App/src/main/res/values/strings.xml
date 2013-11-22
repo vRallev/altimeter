@@ -10,5 +10,7 @@
     <string name="gyroscope">Gyroscope</string>
     <string name="rotation_vector">Rotation vector</string>
     <string name="open_demo">Open Demo</string>
+    <string name="log">Log</string>
+    <string name="stop">Stop</string>
 
 </resources>

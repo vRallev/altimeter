@@ -2,6 +2,7 @@ package net.vrallev.android.altimeter.activity.fragment;
 
 import android.app.Fragment;
 import android.hardware.Sensor;
+import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import net.vrallev.android.altimeter.R;
+import net.vrallev.android.altimeter.activity.file.SensorLogger;
 import net.vrallev.android.base.util.AndroidServices;
 import net.vrallev.android.base.util.Cat;
 
@@ -31,9 +33,13 @@ public abstract class AbstractSensorFragment extends Fragment implements SensorE
     protected TextView mTextViewY;
     protected TextView mTextViewZ;
 
+    protected SensorLogger mSensorLogger;
+    protected boolean mLoggingEnabled;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mSensorLogger = new SensorLogger(this);
         mSensor = sensorManager.getDefaultSensor(getSensor());
     }
 
@@ -65,6 +71,22 @@ public abstract class AbstractSensorFragment extends Fragment implements SensorE
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
         Cat.i("onAccuracyChanged");
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (mLoggingEnabled) {
+            mSensorLogger.logEvent(event);
+        }
+    }
+
+    public void setLoggingEnabled(boolean enabled) {
+        if (enabled) {
+            mSensorLogger.startLogger();
+        } else {
+            mSensorLogger.stopLogger();
+        }
+        mLoggingEnabled = enabled;
     }
 
     protected void publishSensorValues(float x, float y, float z, int digitsBeforDecimalPoint, int digitsAfterDecimalPoint) {

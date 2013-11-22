@@ -47,6 +47,8 @@ public class RotationVectorFragment extends AbstractSensorFragment {
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+        super.onSensorChanged(event);
+
         publishSensorValues(event.values[0], event.values[1], event.values[2], DEFAULT_DIGITS_BEFORE, DEFAULT_DIGITS_AFTER);
 
         mTextViewExtra1.setText(avoidJumpingText(event.values[3], DEFAULT_DIGITS_BEFORE, DEFAULT_DIGITS_AFTER));
