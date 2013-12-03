@@ -3,6 +3,7 @@ package net.vrallev.android.altimeter.activity.fragment;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,9 +23,20 @@ public class RotationVectorFragment extends AbstractSensorFragment {
     private TextView mTextViewExtra1;
     private TextView mTextViewExtra2;
 
+    private float[] mRotationMatrix;
+
     @Override
     protected int getSensor() {
         return Sensor.TYPE_ROTATION_VECTOR;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mRotationMatrix = new float[9];
+        mRotationMatrix[0] = 1;
+        mRotationMatrix[4] = 1;
+        mRotationMatrix[8] = 1;
     }
 
     @Override
@@ -56,9 +68,23 @@ public class RotationVectorFragment extends AbstractSensorFragment {
     public void onSensorChanged(SensorEvent event) {
         super.onSensorChanged(event);
 
-        publishSensorValues(event.values[0], event.values[1], event.values[2], DEFAULT_DIGITS_BEFORE, DEFAULT_DIGITS_AFTER);
+        SensorManager.getRotationMatrixFromVector(mRotationMatrix, event.values);
 
-        mTextViewExtra1.setText(avoidJumpingText(event.values[3], DEFAULT_DIGITS_BEFORE, DEFAULT_DIGITS_AFTER));
-        mTextViewExtra2.setText(avoidJumpingText(event.values[4], DEFAULT_DIGITS_BEFORE, DEFAULT_DIGITS_AFTER));
+        double x = Math.atan2(mRotationMatrix[7], mRotationMatrix[8]);
+        double y = Math.atan2(mRotationMatrix[6] * -1, Math.sqrt(Math.pow(mRotationMatrix[7], 2) + Math.pow(mRotationMatrix[8], 2)));
+        double z = Math.atan2(mRotationMatrix[3], mRotationMatrix[0]);
+
+        publishSensorValues((float) x, (float) y, (float) z, DEFAULT_DIGITS_BEFORE, DEFAULT_DIGITS_AFTER);
+//        mTextViewX.setText(avoidJumpingText((float) x, DEFAULT_DIGITS_BEFORE, DEFAULT_DIGITS_AFTER));
+//        mTextViewY.setText(avoidJumpingText((float) y, DEFAULT_DIGITS_BEFORE, DEFAULT_DIGITS_AFTER));
+//        mTextViewZ.setText(avoidJumpingText((float) z, DEFAULT_DIGITS_BEFORE, DEFAULT_DIGITS_AFTER));
+
+        mTextViewExtra1.setText(avoidJumpingText(event.values[0], DEFAULT_DIGITS_BEFORE, DEFAULT_DIGITS_AFTER));
+        mTextViewExtra2.setText(avoidJumpingText(event.values[1], DEFAULT_DIGITS_BEFORE, DEFAULT_DIGITS_AFTER));
+
+//        publishSensorValues(event.values[0], event.values[1], event.values[2], DEFAULT_DIGITS_BEFORE, DEFAULT_DIGITS_AFTER);
+//
+//        mTextViewExtra1.setText(avoidJumpingText(event.values[3], DEFAULT_DIGITS_BEFORE, DEFAULT_DIGITS_AFTER));
+//        mTextViewExtra2.setText(avoidJumpingText(event.values[4], DEFAULT_DIGITS_BEFORE, DEFAULT_DIGITS_AFTER));
     }
 }
