@@ -61,7 +61,7 @@ public class SensorLogger {
 
     private void writeEvent(SensorEvent event) throws IOException {
 //        Cat.d(String.format(Locale.US, "%f;%f;%f", event.values[0], event.values[1], event.values[2]));
-        mWriter.write(String.format(Locale.US, "%f;%f;%f\n", event.values[0], event.values[1], event.values[2]));
+        mWriter.write(String.format(Locale.GERMANY, "%f;%f;%f\n", event.values[0], event.values[1], event.values[2]));
     }
 
     private void writeString(String text) throws IOException {
