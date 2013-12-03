@@ -16,4 +16,10 @@ public class RotationTestActivity extends BaseActivity {
 
         LocationProvider.getInstance().start(this);
     }
+
+    @Override
+    public void onBackPressed() {
+        LocationProvider.getInstance().stop();
+        super.onBackPressed();
+    }
 }

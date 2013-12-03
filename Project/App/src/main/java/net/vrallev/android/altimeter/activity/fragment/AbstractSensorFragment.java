@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import net.vrallev.android.altimeter.R;
-import net.vrallev.android.altimeter.activity.file.SensorLogger;
+import net.vrallev.android.altimeter.file.SensorLogger;
 import net.vrallev.android.base.util.AndroidServices;
 import net.vrallev.android.base.util.Cat;
 
@@ -76,15 +76,15 @@ public abstract class AbstractSensorFragment extends Fragment implements SensorE
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (mLoggingEnabled) {
-            mSensorLogger.logEvent(event);
+            mSensorLogger.addEntry(event);
         }
     }
 
     public void setLoggingEnabled(boolean enabled) {
         if (enabled) {
-            mSensorLogger.startLogger();
+            mSensorLogger.startWriting();
         } else {
-            mSensorLogger.stopLogger();
+            mSensorLogger.stopWriting();
         }
         mLoggingEnabled = enabled;
     }
