@@ -13,6 +13,7 @@ import android.widget.Button;
 import net.vrallev.android.altimeter.R;
 import net.vrallev.android.altimeter.file.AbstractCsvWriter;
 import net.vrallev.android.altimeter.location.LocationProvider;
+import net.vrallev.android.altimeter.location.LocationUtil;
 import net.vrallev.android.base.BaseActivity;
 import net.vrallev.android.base.util.AndroidServices;
 import net.vrallev.android.base.util.Cat;
@@ -33,6 +34,8 @@ public class RotationTestActivity extends BaseActivity implements SensorEventLis
 
     private Button mButton;
     private boolean mLogging;
+
+    private Location mOldLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,8 +85,15 @@ public class RotationTestActivity extends BaseActivity implements SensorEventLis
     @Override
     public void onSensorChanged(SensorEvent event) {
         Location location = locationProvider.getLocation();
+        double distance = 0;
 
-        mTestWriter.addEntry(new TestEvent(System.currentTimeMillis(), location.getLongitude(), location.getLatitude(), event.values[0], event.values[1], event.values[2]));
+        if (mOldLocation != null && !mOldLocation.equals(location)) {
+            distance = LocationUtil.getDistanceInKm(location, mOldLocation);
+        }
+
+        mOldLocation = location;
+
+        mTestWriter.addEntry(new TestEvent(System.currentTimeMillis(), location.getLongitude(), location.getLatitude(), distance, event.values[0], event.values[1], event.values[2]));
     }
 
     @Override
@@ -99,10 +109,12 @@ public class RotationTestActivity extends BaseActivity implements SensorEventLis
         public final float mZRotation;
         public final double mLongitude;
         public final double mLatitude;
+        public final double mDistance;
 
-        public TestEvent(long timeStamp, double longitude, double latitude, float XRotation, float YRotation, float ZRotation) {
+        public TestEvent(long timeStamp, double longitude, double latitude, double distance, float XRotation, float YRotation, float ZRotation) {
             mTimeStamp = timeStamp;
             mLongitude = longitude;
+            mDistance = distance;
             mLatitude = latitude;
             mXRotation = XRotation;
             mYRotation = YRotation;
@@ -118,12 +130,12 @@ public class RotationTestActivity extends BaseActivity implements SensorEventLis
 
         @Override
         protected void writeEvent(TestEvent event) throws IOException {
-            writeLine(String.format(Locale.GERMANY, "%d;%f;%f;%f;%f;%f", event.mTimeStamp, event.mLongitude, event.mLatitude, event.mXRotation, event.mYRotation, event.mZRotation));
+            writeLine(String.format(Locale.GERMANY, "%d;%f;%f;%f;%f;%f;%f", event.mTimeStamp, event.mLongitude, event.mLatitude, event.mDistance, event.mXRotation, event.mYRotation, event.mZRotation));
         }
 
         @Override
         protected String getHeader() {
-            return "Timestamp;Longitude;Latitude;X-Rotation;Y-Rotation;Z-Rotation";
+            return "Timestamp;Longitude;Latitude;Distance;X-Rotation;Y-Rotation;Z-Rotation";
         }
     }
 }
