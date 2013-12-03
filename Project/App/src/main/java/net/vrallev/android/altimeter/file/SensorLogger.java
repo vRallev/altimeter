@@ -1,4 +1,4 @@
-package net.vrallev.android.altimeter.activity.file;
+package net.vrallev.android.altimeter.file;
 
 import android.app.Fragment;
 import android.hardware.SensorEvent;

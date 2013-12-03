@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import net.vrallev.android.altimeter.R;
+import net.vrallev.android.altimeter.activity.RotationTestActivity;
 import net.vrallev.android.altimeter.activity.RotationVectorDemo;
 
 /**
@@ -39,6 +40,12 @@ public class RotationVectorFragment extends AbstractSensorFragment {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(getActivity(), RotationVectorDemo.class));
+            }
+        });
+        view.findViewById(R.id.button_start_test).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getActivity(), RotationTestActivity.class));
             }
         });
 

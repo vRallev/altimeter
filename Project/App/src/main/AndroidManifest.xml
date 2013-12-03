@@ -12,6 +12,8 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
     <application
             android:name="net.vrallev.android.altimeter.AppExtension"
             android:allowBackup="true"
@@ -31,6 +33,9 @@
         <activity
                 android:name=".activity.RotationVectorDemo"
                 android:label="@string/rotation_vector" />
+        <activity
+                android:name=".activity.RotationTestActivity"
+                android:label="@string/rotation_test" />
     </application>
 
 </manifest>

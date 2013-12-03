@@ -14,7 +14,6 @@
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
             android:gravity="center_horizontal"
             android:textAppearance="?android:attr/textAppearanceLarge"
             tools:text="Y coordinate" />
@@ -67,5 +66,14 @@
             android:layout_centerHorizontal="true"
             android:text="@string/open_demo"
             android:layout_marginTop="24dp"/>
+
+    <Button
+            android:id="@+id/button_start_test"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_below="@id/button"
+            android:layout_centerHorizontal="true"
+            android:text="@string/start_test"
+            android:layout_marginTop="12dp"/>
 
 </RelativeLayout>
