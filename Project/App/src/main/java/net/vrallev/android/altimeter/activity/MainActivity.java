@@ -14,6 +14,7 @@ import net.vrallev.android.altimeter.activity.fragment.AccelerometerFragment;
 import net.vrallev.android.altimeter.activity.fragment.GravityFragment;
 import net.vrallev.android.altimeter.activity.fragment.GyroscopeFragment;
 import net.vrallev.android.altimeter.activity.fragment.LinearAccelerationFragment;
+import net.vrallev.android.altimeter.activity.fragment.RotationMatrixFragment;
 import net.vrallev.android.altimeter.activity.fragment.RotationVectorFragment;
 import net.vrallev.android.base.BaseActivity;
 
@@ -108,13 +109,15 @@ public class MainActivity extends BaseActivity {
                     return new GyroscopeFragment();
                 case 4:
                     return new RotationVectorFragment();
+                case 5:
+                    return new RotationMatrixFragment();
             }
             return null;
         }
 
         @Override
         public int getCount() {
-            return 5;
+            return 6;
         }
 
         @Override
@@ -130,6 +133,8 @@ public class MainActivity extends BaseActivity {
                     return getString(R.string.gyroscope).toUpperCase();
                 case 4:
                     return getString(R.string.rotation_vector).toUpperCase();
+                case 5:
+                    return getString(R.string.rotation_matrix_rot).toUpperCase();
             }
             return null;
         }

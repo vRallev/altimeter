@@ -8,6 +8,8 @@
     <string name="linear_acceleration">Linear acceleration</string>
     <string name="gyroscope">Gyroscope</string>
     <string name="rotation_vector">Rotation vector</string>
+    <string name="rotation_matrix_rot">Rotation matrix rot</string>
+    <string name="rotation_matrix_acc">Rotation matrix acc</string>
     <string name="open_demo">Open Demo</string>
     <string name="log">Log</string>
     <string name="stop">Stop</string>
@@ -19,6 +21,9 @@
     <string name="log_everything">Log everything</string>
     <string name="height">Height: %f</string>
     <string name="height_sum">Height Sum: %f</string>
+    <string name="rotation_x_initial">Rotation Initial X: %f</string>
     <string name="rotation_x">Rotation X: %f</string>
+    <string name="rotation_y">Rotation Y: %f</string>
+    <string name="rotation_z">Rotation Z: %f</string>
 
 </resources>
