@@ -1,5 +1,6 @@
 package net.vrallev.android.altimeter.activity.fragment;
 
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorManager;
@@ -10,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import net.vrallev.android.altimeter.R;
+import net.vrallev.android.altimeter.activity.InitializeActivity;
 
 /**
  * @author Ralf Wondratschek
@@ -70,6 +72,13 @@ public class RotationMatrixFragment extends AbstractSensorFragment {
         mTextViewGravityX = (TextView) view.findViewById(R.id.textView_gravity_x);
         mTextViewGravityY = (TextView) view.findViewById(R.id.textView_gravity_y);
         mTextViewGravityZ = (TextView) view.findViewById(R.id.textView_gravity_z);
+
+        view.findViewById(R.id.button_start_test).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getActivity(), InitializeActivity.class));
+            }
+        });
 
         return view;
     }

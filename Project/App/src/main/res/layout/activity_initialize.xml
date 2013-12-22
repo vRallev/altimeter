@@ -4,91 +4,59 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:paddingBottom="@dimen/activity_vertical_margin"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
-        android:paddingTop="@dimen/activity_vertical_margin">
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/activity_vertical_margin">
 
     <TextView
             android:id="@+id/textView_x"
-            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_width="match_parent"
             android:gravity="center_horizontal"
             android:textAppearance="?android:attr/textAppearanceLarge"
             tools:text="X coordinate" />
 
     <TextView
             android:id="@+id/textView_y"
-            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_width="match_parent"
             android:gravity="center_horizontal"
             android:textAppearance="?android:attr/textAppearanceLarge"
             tools:text="Y coordinate" />
 
     <TextView
             android:id="@+id/textView_z"
-            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            tools:text="Z coordinate" />
-
-    <TextView
-            android:id="@+id/textView_x_2"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:gravity="center_horizontal"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            tools:text="Z coordinate" />
-
-    <TextView
-            android:id="@+id/textView_y_2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            tools:text="Z coordinate" />
-
-    <TextView
-            android:id="@+id/textView_z_2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:textAppearance="?android:attr/textAppearanceLarge"
             tools:text="Z coordinate" />
 
     <TextView
             android:id="@+id/textView_gravity_x"
-            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
+            android:layout_width="match_parent"
             android:gravity="center_horizontal"
             android:textAppearance="?android:attr/textAppearanceLarge"
             tools:text="Z coordinate" />
 
     <TextView
             android:id="@+id/textView_gravity_y"
-            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_width="match_parent"
             android:gravity="center_horizontal"
             android:textAppearance="?android:attr/textAppearanceLarge"
             tools:text="Z coordinate" />
 
     <TextView
             android:id="@+id/textView_gravity_z"
-            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_width="match_parent"
             android:gravity="center_horizontal"
             android:textAppearance="?android:attr/textAppearanceLarge"
             tools:text="Z coordinate" />
-
-    <Button
-            android:id="@+id/button_start_test"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="@string/start_test" />
 
 </LinearLayout>

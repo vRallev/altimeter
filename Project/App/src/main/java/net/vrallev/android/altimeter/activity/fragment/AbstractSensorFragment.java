@@ -103,7 +103,7 @@ public abstract class AbstractSensorFragment extends Fragment implements SensorE
 
     private static StringBuilder stringBuilderCache = new StringBuilder();
 
-    protected static String avoidJumpingText(float value, int digitsBeforDecimalPoint, int digitsAfterDecimalPoint) {
+    public static String avoidJumpingText(float value, int digitsBeforDecimalPoint, int digitsAfterDecimalPoint) {
         value = round(value, digitsAfterDecimalPoint);
 
         stringBuilderCache.delete(0, stringBuilderCache.length());
