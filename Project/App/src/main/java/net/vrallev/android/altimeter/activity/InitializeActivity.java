@@ -23,6 +23,8 @@ public class InitializeActivity extends BaseActivity implements SensorEventListe
 
     private static final double INVALID = -100;
 
+    private static final int LOGGING_ACCURACY = 1000;
+
     private static final int DIGITS_BEFORE = 2;
     private static final int DIGITS_AFTER = 3;
 
@@ -75,7 +77,7 @@ public class InitializeActivity extends BaseActivity implements SensorEventListe
     }
 
     private void initValues() {
-        mLoggedRotationX = new double[(int) (Math.PI * 2 * 100 + 1)];
+        mLoggedRotationX = new double[(int) (Math.PI * 2 * LOGGING_ACCURACY + 1)];
         for (int i = 0; i < mLoggedRotationX.length; i++) {
             mLoggedRotationX[i] = INVALID;
         }
@@ -92,7 +94,7 @@ public class InitializeActivity extends BaseActivity implements SensorEventListe
     @Override
     protected void onResume() {
         super.onResume();
-        SENSOR_MANAGER.registerListener(this, mSensorRotation, SensorManager.SENSOR_DELAY_UI);
+        SENSOR_MANAGER.registerListener(this, mSensorRotation, SensorManager.SENSOR_DELAY_FASTEST);
     }
 
     @Override
@@ -117,7 +119,7 @@ public class InitializeActivity extends BaseActivity implements SensorEventListe
             return;
         }
 
-        int pos = (int) ((z + Math.PI) * 100);
+        int pos = (int) ((z + Math.PI) * LOGGING_ACCURACY);
 
         if (mStartPosition < 0) {
             mStartPosition = pos;
