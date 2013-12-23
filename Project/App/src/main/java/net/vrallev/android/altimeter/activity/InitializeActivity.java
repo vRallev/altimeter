@@ -5,7 +5,10 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import net.vrallev.android.altimeter.R;
 import net.vrallev.android.altimeter.activity.fragment.AbstractSensorFragment;
@@ -18,6 +21,8 @@ import net.vrallev.android.base.util.Cat;
  */
 public class InitializeActivity extends BaseActivity implements SensorEventListener {
 
+    private static final double INVALID = -100;
+
     private static final int DIGITS_BEFORE = 2;
     private static final int DIGITS_AFTER = 3;
 
@@ -27,22 +32,19 @@ public class InitializeActivity extends BaseActivity implements SensorEventListe
     private TextView mTextViewRotationY;
     private TextView mTextViewRotationZ;
 
-    private TextView mTextViewGravityX;
-    private TextView mTextViewGravityY;
-    private TextView mTextViewGravityZ;
+    private TextView mTextViewSlower;
+    private Button mButtonStart;
 
     private Sensor mSensorRotation;
-    private Sensor mSensorGravity;
 
     private float[] mRotationMatrix;
 
-    private LoggedEvent[] mLoggedEvents;
+    private double[] mLoggedRotationX;
     private int mLoggedEventsCount;
     private int mStartPosition;
     private int mLastPosition;
 
     private int[] mDirectionArray;
-    private boolean mHasDirection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,23 +55,35 @@ public class InitializeActivity extends BaseActivity implements SensorEventListe
         mTextViewRotationY = (TextView) findViewById(R.id.textView_y);
         mTextViewRotationZ = (TextView) findViewById(R.id.textView_z);
 
-        mTextViewGravityX = (TextView) findViewById(R.id.textView_gravity_x);
-        mTextViewGravityY = (TextView) findViewById(R.id.textView_gravity_y);
-        mTextViewGravityZ = (TextView) findViewById(R.id.textView_gravity_z);
+        mTextViewSlower = (TextView) findViewById(R.id.textView_slower);
+        mButtonStart = (Button) findViewById(R.id.button_start_test);
+
+        mButtonStart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                v.setVisibility(View.GONE);
+                initValues();
+            }
+        });
+
+        mSensorRotation = SENSOR_MANAGER.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
 
         mRotationMatrix = new float[]{
                 1f, 0f, 0f,
                 0f, 1f, 0f,
                 0f, 0f, 1f};
+    }
 
-        mSensorRotation = SENSOR_MANAGER.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
-        mSensorGravity = SENSOR_MANAGER.getDefaultSensor(Sensor.TYPE_GRAVITY);
-
-        mLoggedEvents = new LoggedEvent[(int) (Math.PI * 2 * 100)];
+    private void initValues() {
+        mLoggedRotationX = new double[(int) (Math.PI * 2 * 100 + 1)];
+        for (int i = 0; i < mLoggedRotationX.length; i++) {
+            mLoggedRotationX[i] = INVALID;
+        }
+        mLoggedEventsCount = 0;
         mStartPosition = -1;
         mLastPosition = -1;
 
-        mDirectionArray = new int[10];
+        mDirectionArray = new int[2];
         for (int i = 0; i < mDirectionArray.length; i++) {
             mDirectionArray[i] = -1;
         }
@@ -79,7 +93,6 @@ public class InitializeActivity extends BaseActivity implements SensorEventListe
     protected void onResume() {
         super.onResume();
         SENSOR_MANAGER.registerListener(this, mSensorRotation, SensorManager.SENSOR_DELAY_UI);
-        SENSOR_MANAGER.registerListener(this, mSensorGravity, SensorManager.SENSOR_DELAY_UI);
     }
 
     @Override
@@ -90,47 +103,51 @@ public class InitializeActivity extends BaseActivity implements SensorEventListe
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        switch (event.sensor.getType()) {
-            case Sensor.TYPE_ROTATION_VECTOR:
-                SensorManager.getRotationMatrixFromVector(mRotationMatrix, event.values);
+        SensorManager.getRotationMatrixFromVector(mRotationMatrix, event.values);
 
-                double x = Math.atan2(mRotationMatrix[7], mRotationMatrix[8]);
-                double y = Math.atan2(mRotationMatrix[6] * -1, Math.sqrt(Math.pow(mRotationMatrix[7], 2) + Math.pow(mRotationMatrix[8], 2)));
-                double z = Math.atan2(mRotationMatrix[3], mRotationMatrix[0]);
+        double x = Math.atan2(mRotationMatrix[7], mRotationMatrix[8]);
+        double y = Math.atan2(mRotationMatrix[6] * -1, Math.sqrt(Math.pow(mRotationMatrix[7], 2) + Math.pow(mRotationMatrix[8], 2)));
+        double z = Math.atan2(mRotationMatrix[3], mRotationMatrix[0]);
 
-                mTextViewRotationX.setText(AbstractSensorFragment.avoidJumpingText((float) x, DIGITS_BEFORE, DIGITS_AFTER));
-                mTextViewRotationY.setText(AbstractSensorFragment.avoidJumpingText((float) y, DIGITS_BEFORE, DIGITS_AFTER));
-                mTextViewRotationZ.setText(AbstractSensorFragment.avoidJumpingText((float) z, DIGITS_BEFORE, DIGITS_AFTER));
+        mTextViewRotationX.setText(AbstractSensorFragment.avoidJumpingText((float) x, DIGITS_BEFORE, DIGITS_AFTER));
+        mTextViewRotationY.setText(AbstractSensorFragment.avoidJumpingText((float) y, DIGITS_BEFORE, DIGITS_AFTER));
+        mTextViewRotationZ.setText(AbstractSensorFragment.avoidJumpingText((float) z, DIGITS_BEFORE, DIGITS_AFTER));
 
-                int pos = (int) ((z + Math.PI) * 100);
-                if (mStartPosition < 0) {
-                    mStartPosition = pos;
-                }
-                if (mLoggedEvents[pos] == null) {
-                    mLoggedEventsCount++;
-                    Cat.d("Logged events %d", mLoggedEventsCount);
-                }
-                if (mLoggedEventsCount > 15 && !mHasDirection) {
-                    setDirection(pos);
-                }
-
-                if (mHasDirection && isRotatingRight() && mLastPosition >= mStartPosition && pos < mStartPosition) {
-                    Cat.d("Success");
-                } else if (mHasDirection && !isRotatingRight() && mLastPosition <= mStartPosition && pos > mStartPosition) {
-                    Cat.d("Success");
-                }
-
-                mLastPosition = pos;
-                mLoggedEvents[pos] = new LoggedEvent();
-
-                break;
-
-            case Sensor.TYPE_GRAVITY:
-                mTextViewGravityX.setText(AbstractSensorFragment.avoidJumpingText(event.values[0], DIGITS_BEFORE, DIGITS_AFTER));
-                mTextViewGravityY.setText(AbstractSensorFragment.avoidJumpingText(event.values[1], DIGITS_BEFORE, DIGITS_AFTER));
-                mTextViewGravityZ.setText(AbstractSensorFragment.avoidJumpingText(event.values[2], DIGITS_BEFORE, DIGITS_AFTER));
-                break;
+        if (mButtonStart.getVisibility() == View.VISIBLE) {
+            return;
         }
+
+        int pos = (int) ((z + Math.PI) * 100);
+
+        if (mStartPosition < 0) {
+            mStartPosition = pos;
+        }
+
+        if (mLoggedRotationX[pos] == INVALID) {
+            mLoggedEventsCount++;
+            Cat.d("Logged events %d %d", mLoggedEventsCount, pos);
+        }
+
+        if (mLoggedEventsCount == 15 && mDirectionArray[0] < 0) {
+            mDirectionArray[0] = pos;
+        } else if (mLoggedEventsCount == 30 && mDirectionArray[1] < 0) {
+            mDirectionArray[1] = pos;
+        }
+
+        if (hasDirection() && isRotatingRight() && mLastPosition >= mStartPosition && pos < mStartPosition) {
+            showResult();
+        } else if (hasDirection() && !isRotatingRight() && mLastPosition <= mStartPosition && pos > mStartPosition) {
+            showResult();
+        }
+
+        if (Math.abs(mLastPosition - pos) > 2) {
+            mTextViewSlower.setVisibility(View.VISIBLE);
+        } else {
+            mTextViewSlower.setVisibility(View.INVISIBLE);
+        }
+
+        mLastPosition = pos;
+        mLoggedRotationX[pos] = x;
     }
 
     @Override
@@ -138,32 +155,33 @@ public class InitializeActivity extends BaseActivity implements SensorEventListe
         Cat.d("OnAccuracyChanged");
     }
 
-    private void setDirection(int pos) {
-        if (mHasDirection) {
-            return;
-        }
-
-        for (int i = 0; i < mDirectionArray.length; i++) {
-            if (mDirectionArray[i] < 0) {
-                mDirectionArray[i] = pos;
-                return;
-            }
-        }
-
-        mHasDirection = true;
-
-        Cat.d("Rotating right %b", isRotatingRight());
-    }
-
     private boolean isRotatingRight() {
-        if (!mHasDirection) {
+        if (!hasDirection()) {
             throw new IllegalStateException();
         }
 
         return mDirectionArray[0] > mDirectionArray[mDirectionArray.length - 1];
     }
 
-    private static class LoggedEvent {
+    private boolean hasDirection() {
+        return mDirectionArray[0] >= 0 && mDirectionArray[1] >= 0;
+    }
 
+    private void showResult() {
+        double min = 100;
+        double max = -100;
+
+        for (double value : mLoggedRotationX) {
+            if (value < min && value != INVALID) {
+                min = value;
+            } else if (value > max) {
+                max = value;
+            }
+        }
+
+        double ascent = (max - min) / 2;
+        Toast.makeText(this, "Ascent " + ascent + "\nAscent " + Math.toDegrees(ascent), Toast.LENGTH_LONG).show();
+
+        mButtonStart.setVisibility(View.VISIBLE);
     }
 }
