@@ -26,5 +26,6 @@
     <string name="rotation_y">Rotation Y: %f</string>
     <string name="rotation_z">Rotation Z: %f</string>
     <string name="slower">Slower</string>
+    <string name="log_test">Log Test</string>
 
 </resources>

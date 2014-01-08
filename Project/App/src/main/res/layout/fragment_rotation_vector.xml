@@ -77,4 +77,13 @@
             android:text="@string/start_test"
             android:layout_marginTop="12dp"/>
 
+    <Button
+            android:id="@+id/button_log_test"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_below="@id/button_start_test"
+            android:layout_centerHorizontal="true"
+            android:text="@string/log_test"
+            android:layout_marginTop="12dp"/>
+
 </RelativeLayout>
