@@ -24,6 +24,7 @@ public class InitializeActivity extends BaseActivity implements SensorEventListe
     private static final double INVALID = -100;
 
     private static final int LOGGING_ACCURACY = 1000;
+    private static final int BIGGEST_GAP = 10;
 
     private static final int DIGITS_BEFORE = 2;
     private static final int DIGITS_AFTER = 3;
@@ -43,10 +44,9 @@ public class InitializeActivity extends BaseActivity implements SensorEventListe
 
     private double[] mLoggedRotationX;
     private int mLoggedEventsCount;
-    private int mStartPosition;
     private int mLastPosition;
 
-    private int[] mDirectionArray;
+    private int mLogCounter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,13 +82,7 @@ public class InitializeActivity extends BaseActivity implements SensorEventListe
             mLoggedRotationX[i] = INVALID;
         }
         mLoggedEventsCount = 0;
-        mStartPosition = -1;
         mLastPosition = -1;
-
-        mDirectionArray = new int[2];
-        for (int i = 0; i < mDirectionArray.length; i++) {
-            mDirectionArray[i] = -1;
-        }
     }
 
     @Override
@@ -121,52 +115,40 @@ public class InitializeActivity extends BaseActivity implements SensorEventListe
 
         int pos = (int) ((z + Math.PI) * LOGGING_ACCURACY);
 
-        if (mStartPosition < 0) {
-            mStartPosition = pos;
-        }
-
         if (mLoggedRotationX[pos] == INVALID) {
             mLoggedEventsCount++;
-            Cat.d("Logged events %d %d", mLoggedEventsCount, pos);
+            if (mLoggedEventsCount % 100 == 0) {
+                Cat.d("Logged events %d %d", mLoggedEventsCount, pos);
+            }
         }
 
-        if (mLoggedEventsCount == 15 && mDirectionArray[0] < 0) {
-            mDirectionArray[0] = pos;
-        } else if (mLoggedEventsCount == 30 && mDirectionArray[1] < 0) {
-            mDirectionArray[1] = pos;
-        }
-
-        if (hasDirection() && isRotatingRight() && mLastPosition >= mStartPosition && pos < mStartPosition) {
-            showResult();
-        } else if (hasDirection() && !isRotatingRight() && mLastPosition <= mStartPosition && pos > mStartPosition) {
-            showResult();
-        }
-
-        if (Math.abs(mLastPosition - pos) > 2) {
+        if (Math.abs(mLastPosition - pos) >= BIGGEST_GAP / 2) {
             mTextViewSlower.setVisibility(View.VISIBLE);
         } else {
             mTextViewSlower.setVisibility(View.INVISIBLE);
         }
 
         mLastPosition = pos;
+
+        if (mLoggedEventsCount > LOGGING_ACCURACY * Math.PI) {
+            int biggestGap = getBiggestGap(mLoggedRotationX);
+
+            if (biggestGap < 12) {
+                showResult();
+            }
+
+            if (mLogCounter++ % 200 == 0) {
+                Cat.d("Biggest Gap: %d", biggestGap);
+                mLogCounter = 1;
+            }
+        }
+
         mLoggedRotationX[pos] = x;
     }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
         Cat.d("OnAccuracyChanged");
-    }
-
-    private boolean isRotatingRight() {
-        if (!hasDirection()) {
-            throw new IllegalStateException();
-        }
-
-        return mDirectionArray[0] > mDirectionArray[mDirectionArray.length - 1];
-    }
-
-    private boolean hasDirection() {
-        return mDirectionArray[0] >= 0 && mDirectionArray[1] >= 0;
     }
 
     private void showResult() {
@@ -185,5 +167,45 @@ public class InitializeActivity extends BaseActivity implements SensorEventListe
         Toast.makeText(this, "Ascent " + ascent + "\nAscent " + Math.toDegrees(ascent), Toast.LENGTH_LONG).show();
 
         mButtonStart.setVisibility(View.VISIBLE);
+    }
+
+    @SuppressWarnings("ForLoopReplaceableByForEach")
+    private static int getBiggestGap(double[] array) {
+        int max = -1;
+        int cur = 0;
+
+        for (int i = 0; i < array.length; i++) {
+            double v = array[i];
+
+            if (v == INVALID) {
+                cur++;
+            } else {
+                max = Math.max(cur, max);
+                cur = 0;
+            }
+        }
+
+        int pos1 = -1;
+        int pos2 = -1;
+        for (int i = 0; i < array.length; i++) {
+            double v = array[i];
+            if (v != INVALID) {
+                pos1 = i;
+                break;
+            }
+        }
+        if (pos1 == -1) {
+            return array.length;
+        }
+        for (int i = array.length - 1; i >= 0; i--) {
+            double v = array[i];
+            if (v != INVALID) {
+                pos2 = i;
+                break;
+            }
+        }
+        pos1 += array.length - pos2 - 1;
+
+        return Math.max(max, pos1);
     }
 }
