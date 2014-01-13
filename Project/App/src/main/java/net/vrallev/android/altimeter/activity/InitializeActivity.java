@@ -22,10 +22,11 @@ import net.vrallev.android.base.util.Cat;
 public class InitializeActivity extends BaseActivity implements SensorEventListener {
 
     private static final double INVALID = -100;
-    private static final float INVALID_FLOAT = -100f;
 
     private static final int LOGGING_ACCURACY = 1000;
     private static final int BIGGEST_GAP = 10;
+
+    private static final int MAX_ACCELERATION_COUNT = 3000;
 
     private static final int DIGITS_BEFORE = 2;
     private static final int DIGITS_AFTER = 3;
@@ -57,8 +58,8 @@ public class InitializeActivity extends BaseActivity implements SensorEventListe
     private float[] mMaxAccelerations;
     private float[] mMinAccelerations;
 
-    private float[] mAccelerations;
-    private int mAccelerationPosition;
+    private double mAccelerationSum;
+    private int mAccelerationCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,8 +103,6 @@ public class InitializeActivity extends BaseActivity implements SensorEventListe
 
         mMaxAccelerations = new float[3];
         mMinAccelerations = new float[3];
-
-        mAccelerations = new float[1000];
     }
 
     private void initValues() {
@@ -119,10 +118,8 @@ public class InitializeActivity extends BaseActivity implements SensorEventListe
             mMinAccelerations[i] = 100;
         }
 
-        for (int i = 0; i < mAccelerations.length; i++) {
-            mAccelerations[i] = INVALID_FLOAT;
-        }
-        mAccelerationPosition = 0;
+        mAccelerationSum = 0;
+        mAccelerationCount = 0;
     }
 
     @Override
@@ -213,60 +210,20 @@ public class InitializeActivity extends BaseActivity implements SensorEventListe
             return;
         }
 
-//        if (event.values[2] > mMaxAccelerations[2]) {
-//            System.arraycopy(event.values, 0, mMaxAccelerations, 0, 3);
-//        }
-//        if (event.values[2] < mMinAccelerations[2]) {
-//            System.arraycopy(event.values, 0, mMinAccelerations, 0, 3);
-//        }
-
-//        for (int i = 0; i < event.values.length; i++) {
-//            mMaxAccelerations[i] = Math.max(event.values[i], mMaxAccelerations[i]);
-//            mMinAccelerations[i] = Math.min(event.values[i], mMinAccelerations[i]);
-//        }
-
-//        mTextViewAccelerationX.setText(AbstractSensorFragment.avoidJumpingText(mMaxAccelerations[0], DIGITS_BEFORE, DIGITS_AFTER));
-//        mTextViewAccelerationY.setText(AbstractSensorFragment.avoidJumpingText(mMaxAccelerations[1], DIGITS_BEFORE, DIGITS_AFTER));
-//        mTextViewAccelerationZ.setText(AbstractSensorFragment.avoidJumpingText(mMaxAccelerations[2], DIGITS_BEFORE, DIGITS_AFTER));
-
-        mTextViewAccelerationX.setText("" + mAccelerationPosition);
+        mTextViewAccelerationX.setText("" + mAccelerationCount);
 
         int accX = (int) (event.values[0] * 10);
         int accZ = (int) (event.values[2] * 10);
 
         if (accZ != 0) {
             float degree = calcDegree(accX, accZ);
-            mAccelerations[mAccelerationPosition] = degree;
-            mAccelerationPosition++;
+            mAccelerationSum += degree;
+            mAccelerationCount++;
         }
 
-        if (mAccelerationPosition == mAccelerations.length) {
-            float sum = 0;
-            for (int i = 0; i < mAccelerations.length; i++) {
-                sum += mAccelerations[i];
-            }
-
-            sum /= mAccelerations.length;
-
-
-            Toast.makeText(this, "Degree " + sum, Toast.LENGTH_LONG).show();
-
-            mButtonStartAcceleration.setVisibility(View.VISIBLE);
+        if (mAccelerationCount == MAX_ACCELERATION_COUNT) {
+            showResultAcceleration();
         }
-
-
-//        float min = 100;
-//        float max = -100;
-//        for (int i = 0; i < mMaxAccelerations.length; i++) {
-//            max = Math.max(mMaxAccelerations[i], max);
-//        }
-//        for (int i = 0; i < mMinAccelerations.length; i++) {
-//            min = Math.min(mMinAccelerations[i], min);
-//        }
-//
-//        if (max > 2 && min < -2) {
-//            showResultAcceleration();
-//        }
     }
 
     private void showResultRotation() {
@@ -288,27 +245,7 @@ public class InitializeActivity extends BaseActivity implements SensorEventListe
     }
 
     private void showResultAcceleration() {
-        float degreeMax;
-        float degreeMin;
-
-        float mAccX = mMaxAccelerations[0];
-        float mAccZ = mMaxAccelerations[2];
-        if (mAccX < mAccZ) {
-            degreeMax = mAccX / mAccZ * 45;
-        } else {
-            degreeMax = 45 + mAccZ / mAccX * 45;
-        }
-
-        mAccX = mMinAccelerations[0];
-        mAccZ = mMinAccelerations[2];
-        if (mAccX < mAccZ) {
-            degreeMin = mAccX / mAccZ * 45;
-        } else {
-            degreeMin = 45 + mAccZ / mAccX * 45;
-        }
-
-        Toast.makeText(this, "Degree " + degreeMax + "\nDegree " + degreeMin, Toast.LENGTH_LONG).show();
-
+        Toast.makeText(this, "Degree " + (mAccelerationSum / MAX_ACCELERATION_COUNT), Toast.LENGTH_LONG).show();
         mButtonStartAcceleration.setVisibility(View.VISIBLE);
     }
 
