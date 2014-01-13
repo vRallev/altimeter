@@ -22,6 +22,7 @@ import net.vrallev.android.base.util.Cat;
 public class InitializeActivity extends BaseActivity implements SensorEventListener {
 
     private static final double INVALID = -100;
+    private static final float INVALID_FLOAT = -100f;
 
     private static final int LOGGING_ACCURACY = 1000;
     private static final int BIGGEST_GAP = 10;
@@ -34,11 +35,16 @@ public class InitializeActivity extends BaseActivity implements SensorEventListe
     private TextView mTextViewRotationX;
     private TextView mTextViewRotationY;
     private TextView mTextViewRotationZ;
+    private TextView mTextViewAccelerationX;
+    private TextView mTextViewAccelerationY;
+    private TextView mTextViewAccelerationZ;
 
     private TextView mTextViewSlower;
-    private Button mButtonStart;
+    private Button mButtonStartRotation;
+    private Button mButtonStartAcceleration;
 
     private Sensor mSensorRotation;
+    private Sensor mSensorAcceleration;
 
     private float[] mRotationMatrix;
 
@@ -48,6 +54,12 @@ public class InitializeActivity extends BaseActivity implements SensorEventListe
 
     private int mLogCounter;
 
+    private float[] mMaxAccelerations;
+    private float[] mMinAccelerations;
+
+    private float[] mAccelerations;
+    private int mAccelerationPosition;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,24 +68,42 @@ public class InitializeActivity extends BaseActivity implements SensorEventListe
         mTextViewRotationX = (TextView) findViewById(R.id.textView_x);
         mTextViewRotationY = (TextView) findViewById(R.id.textView_y);
         mTextViewRotationZ = (TextView) findViewById(R.id.textView_z);
+        mTextViewAccelerationX = (TextView) findViewById(R.id.textView_acceleration_x);
+        mTextViewAccelerationY = (TextView) findViewById(R.id.textView_acceleration_y);
+        mTextViewAccelerationZ = (TextView) findViewById(R.id.textView_acceleration_z);
 
         mTextViewSlower = (TextView) findViewById(R.id.textView_slower);
-        mButtonStart = (Button) findViewById(R.id.button_start_test);
+        mButtonStartRotation = (Button) findViewById(R.id.button_start_test);
+        mButtonStartAcceleration = (Button) findViewById(R.id.button_start_test_2);
 
-        mButtonStart.setOnClickListener(new View.OnClickListener() {
+        mButtonStartRotation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                v.setVisibility(View.GONE);
+                v.setVisibility(View.INVISIBLE);
+                initValues();
+            }
+        });
+
+        mButtonStartAcceleration.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                v.setVisibility(View.INVISIBLE);
                 initValues();
             }
         });
 
         mSensorRotation = SENSOR_MANAGER.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+        mSensorAcceleration = SENSOR_MANAGER.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
 
         mRotationMatrix = new float[]{
                 1f, 0f, 0f,
                 0f, 1f, 0f,
                 0f, 0f, 1f};
+
+        mMaxAccelerations = new float[3];
+        mMinAccelerations = new float[3];
+
+        mAccelerations = new float[1000];
     }
 
     private void initValues() {
@@ -83,12 +113,23 @@ public class InitializeActivity extends BaseActivity implements SensorEventListe
         }
         mLoggedEventsCount = 0;
         mLastPosition = -1;
+
+        for (int i = 0; i < mMaxAccelerations.length; i++) {
+            mMaxAccelerations[i] = -100;
+            mMinAccelerations[i] = 100;
+        }
+
+        for (int i = 0; i < mAccelerations.length; i++) {
+            mAccelerations[i] = INVALID_FLOAT;
+        }
+        mAccelerationPosition = 0;
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         SENSOR_MANAGER.registerListener(this, mSensorRotation, SensorManager.SENSOR_DELAY_FASTEST);
+        SENSOR_MANAGER.registerListener(this, mSensorAcceleration, SensorManager.SENSOR_DELAY_FASTEST);
     }
 
     @Override
@@ -99,6 +140,23 @@ public class InitializeActivity extends BaseActivity implements SensorEventListe
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+        switch (event.sensor.getType()) {
+            case Sensor.TYPE_ROTATION_VECTOR:
+                onSensorChangedRotation(event);
+                break;
+
+            case Sensor.TYPE_LINEAR_ACCELERATION:
+                onSensorChangedAcceleration(event);
+                break;
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        Cat.d("OnAccuracyChanged");
+    }
+
+    public void onSensorChangedRotation(SensorEvent event) {
         SensorManager.getRotationMatrixFromVector(mRotationMatrix, event.values);
 
         double x = Math.atan2(mRotationMatrix[7], mRotationMatrix[8]);
@@ -109,7 +167,7 @@ public class InitializeActivity extends BaseActivity implements SensorEventListe
         mTextViewRotationY.setText(AbstractSensorFragment.avoidJumpingText((float) y, DIGITS_BEFORE, DIGITS_AFTER));
         mTextViewRotationZ.setText(AbstractSensorFragment.avoidJumpingText((float) z, DIGITS_BEFORE, DIGITS_AFTER));
 
-        if (mButtonStart.getVisibility() == View.VISIBLE) {
+        if (mButtonStartRotation.getVisibility() == View.VISIBLE) {
             return;
         }
 
@@ -134,7 +192,7 @@ public class InitializeActivity extends BaseActivity implements SensorEventListe
             int biggestGap = getBiggestGap(mLoggedRotationX);
 
             if (biggestGap < 12) {
-                showResult();
+                showResultRotation();
             }
 
             if (mLogCounter++ % 200 == 0) {
@@ -146,12 +204,72 @@ public class InitializeActivity extends BaseActivity implements SensorEventListe
         mLoggedRotationX[pos] = x;
     }
 
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        Cat.d("OnAccuracyChanged");
+    @SuppressWarnings("ForLoopReplaceableByForEach")
+    public void onSensorChangedAcceleration(SensorEvent event) {
+        if (mButtonStartAcceleration.getVisibility() == View.VISIBLE) {
+            mTextViewAccelerationX.setText(AbstractSensorFragment.avoidJumpingText(event.values[0], DIGITS_BEFORE, DIGITS_AFTER));
+            mTextViewAccelerationY.setText(AbstractSensorFragment.avoidJumpingText(event.values[1], DIGITS_BEFORE, DIGITS_AFTER));
+            mTextViewAccelerationZ.setText(AbstractSensorFragment.avoidJumpingText(event.values[2], DIGITS_BEFORE, DIGITS_AFTER));
+            return;
+        }
+
+//        if (event.values[2] > mMaxAccelerations[2]) {
+//            System.arraycopy(event.values, 0, mMaxAccelerations, 0, 3);
+//        }
+//        if (event.values[2] < mMinAccelerations[2]) {
+//            System.arraycopy(event.values, 0, mMinAccelerations, 0, 3);
+//        }
+
+//        for (int i = 0; i < event.values.length; i++) {
+//            mMaxAccelerations[i] = Math.max(event.values[i], mMaxAccelerations[i]);
+//            mMinAccelerations[i] = Math.min(event.values[i], mMinAccelerations[i]);
+//        }
+
+//        mTextViewAccelerationX.setText(AbstractSensorFragment.avoidJumpingText(mMaxAccelerations[0], DIGITS_BEFORE, DIGITS_AFTER));
+//        mTextViewAccelerationY.setText(AbstractSensorFragment.avoidJumpingText(mMaxAccelerations[1], DIGITS_BEFORE, DIGITS_AFTER));
+//        mTextViewAccelerationZ.setText(AbstractSensorFragment.avoidJumpingText(mMaxAccelerations[2], DIGITS_BEFORE, DIGITS_AFTER));
+
+        mTextViewAccelerationX.setText("" + mAccelerationPosition);
+
+        int accX = (int) (event.values[0] * 10);
+        int accZ = (int) (event.values[2] * 10);
+
+        if (accZ != 0) {
+            float degree = calcDegree(accX, accZ);
+            mAccelerations[mAccelerationPosition] = degree;
+            mAccelerationPosition++;
+        }
+
+        if (mAccelerationPosition == mAccelerations.length) {
+            float sum = 0;
+            for (int i = 0; i < mAccelerations.length; i++) {
+                sum += mAccelerations[i];
+            }
+
+            sum /= mAccelerations.length;
+
+
+            Toast.makeText(this, "Degree " + sum, Toast.LENGTH_LONG).show();
+
+            mButtonStartAcceleration.setVisibility(View.VISIBLE);
+        }
+
+
+//        float min = 100;
+//        float max = -100;
+//        for (int i = 0; i < mMaxAccelerations.length; i++) {
+//            max = Math.max(mMaxAccelerations[i], max);
+//        }
+//        for (int i = 0; i < mMinAccelerations.length; i++) {
+//            min = Math.min(mMinAccelerations[i], min);
+//        }
+//
+//        if (max > 2 && min < -2) {
+//            showResultAcceleration();
+//        }
     }
 
-    private void showResult() {
+    private void showResultRotation() {
         double min = 100;
         double max = -100;
 
@@ -166,7 +284,36 @@ public class InitializeActivity extends BaseActivity implements SensorEventListe
         double ascent = (max - min) / 2;
         Toast.makeText(this, "Ascent " + ascent + "\nAscent " + Math.toDegrees(ascent), Toast.LENGTH_LONG).show();
 
-        mButtonStart.setVisibility(View.VISIBLE);
+        mButtonStartRotation.setVisibility(View.VISIBLE);
+    }
+
+    private void showResultAcceleration() {
+        float degreeMax;
+        float degreeMin;
+
+        float mAccX = mMaxAccelerations[0];
+        float mAccZ = mMaxAccelerations[2];
+        if (mAccX < mAccZ) {
+            degreeMax = mAccX / mAccZ * 45;
+        } else {
+            degreeMax = 45 + mAccZ / mAccX * 45;
+        }
+
+        mAccX = mMinAccelerations[0];
+        mAccZ = mMinAccelerations[2];
+        if (mAccX < mAccZ) {
+            degreeMin = mAccX / mAccZ * 45;
+        } else {
+            degreeMin = 45 + mAccZ / mAccX * 45;
+        }
+
+        Toast.makeText(this, "Degree " + degreeMax + "\nDegree " + degreeMin, Toast.LENGTH_LONG).show();
+
+        mButtonStartAcceleration.setVisibility(View.VISIBLE);
+    }
+
+    private static float calcDegree(float accX, float accZ) {
+        return accX / accZ * 45;
     }
 
     @SuppressWarnings("ForLoopReplaceableByForEach")

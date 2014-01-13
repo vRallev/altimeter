@@ -52,4 +52,36 @@
             android:layout_height="wrap_content"
             android:text="@string/start_test" />
 
+    <TextView
+            android:id="@+id/textView_acceleration_x"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:gravity="center_horizontal"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            tools:text="X Acceleration" />
+
+    <TextView
+            android:id="@+id/textView_acceleration_y"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            tools:text="Y Acceleration" />
+
+    <TextView
+            android:id="@+id/textView_acceleration_z"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            tools:text="Z Acceleration" />
+
+    <Button
+            android:id="@+id/button_start_test_2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/start_test" />
+
 </LinearLayout>
