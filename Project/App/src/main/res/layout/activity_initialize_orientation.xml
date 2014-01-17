@@ -8,35 +8,23 @@
     <TextView
             android:id="@+id/textView"
             android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
             android:gravity="center_horizontal"
-            android:text="@string/bottom_plane_description"
+            android:text="@string/orientation_description"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <net.vrallev.android.altimeter.view.GapProgressView
-            android:id="@+id/gap_progress_view"
+    <ProgressBar
+            android:id="@+id/progressBar"
+            style="@android:style/Widget.Holo.ProgressBar.Horizontal"
             android:layout_width="match_parent"
-            android:layout_height="20dp"
+            android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:layout_marginRight="@dimen/activity_horizontal_margin" />
-
-    <TextView
-            android:id="@+id/textView_slower"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_above="@id/gap_progress_view"
-            android:layout_below="@id/textView"
-            android:gravity="center"
-            android:text="@string/slower"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="@android:color/holo_red_light"
-            android:visibility="invisible"
-            tools:visibility="visible" />
 
     <LinearLayout
             android:layout_width="match_parent"

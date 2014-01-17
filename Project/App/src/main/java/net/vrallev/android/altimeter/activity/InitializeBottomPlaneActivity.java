@@ -1,5 +1,6 @@
 package net.vrallev.android.altimeter.activity;
 
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -181,7 +182,8 @@ public class InitializeBottomPlaneActivity extends BaseActivity implements Senso
             }
         }
 
-        double ascent = (max - min) / 2;
+        double ascent = (max - min) / 2; // TODO
+        startActivity(new Intent(this, InitializeOrientationActivity.class));
 
         stopTracking();
     }

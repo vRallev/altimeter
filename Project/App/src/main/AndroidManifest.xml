@@ -27,9 +27,13 @@
             </intent-filter>
         </activity>
         <activity
+                android:name=".activity.InitializeOrientationActivity"
+                android:label="@string/app_name"
+                android:screenOrientation="portrait" />
+        <activity
                 android:name=".activity.DevelopmentActivity"
                 android:label="@string/app_name"
-                android:screenOrientation="portrait"/>
+                android:screenOrientation="portrait" />
         <activity
                 android:name=".activity.RotationVectorDemo"
                 android:label="@string/rotation_vector"
