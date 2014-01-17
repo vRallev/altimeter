@@ -27,5 +27,8 @@
     <string name="rotation_z">Rotation Z: %f</string>
     <string name="slower">Slower</string>
     <string name="log_test">Log Test</string>
+    <string name="start">Start</string>
+    <string name="continue_text">Continue</string>
+    <string name="rotation_description">Press start and make slowly a 360 turn.</string>
 
 </resources>

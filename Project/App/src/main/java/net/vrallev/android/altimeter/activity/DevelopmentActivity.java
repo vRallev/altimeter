@@ -19,7 +19,7 @@ import net.vrallev.android.altimeter.activity.fragment.RotationVectorFragment;
 import net.vrallev.android.base.BaseActivity;
 
 @SuppressWarnings("ConstantConditions")
-public class MainActivity extends BaseActivity {
+public class DevelopmentActivity extends BaseActivity {
 
     private boolean mLogging;
     private int mPosition;
@@ -30,7 +30,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_development);
 
         mSectionsPagerAdapter = new SectionsPagerAdapter(getFragmentManager());
 
