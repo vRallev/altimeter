@@ -20,7 +20,7 @@
     <string name="rotation_test">Rotation Test</string>
     <string name="log_everything">Log everything</string>
     <string name="height">Height: %f</string>
-    <string name="height_sum">Height Sum: %f</string>
+    <string name="height_sum">Height: %.1fm</string>
     <string name="rotation_x_initial">Rotation Initial X: %f</string>
     <string name="rotation_x">Rotation X: %f</string>
     <string name="rotation_y">Rotation Y: %f</string>

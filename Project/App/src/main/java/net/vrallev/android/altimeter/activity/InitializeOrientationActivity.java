@@ -1,5 +1,6 @@
 package net.vrallev.android.altimeter.activity;
 
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -8,6 +9,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import net.vrallev.android.altimeter.R;
 import net.vrallev.android.base.BaseActivity;
@@ -143,6 +145,9 @@ public class InitializeOrientationActivity extends BaseActivity implements Senso
 
     private void calcDegreeResult() {
         double degree = mAccelerationSum / mAccelerationCount;
+
+        Toast.makeText(this, "Degree " + degree, Toast.LENGTH_LONG).show();
+        startActivity(new Intent(this, HeightMeasurementActivity.class));
 
         stopTracking();
     }

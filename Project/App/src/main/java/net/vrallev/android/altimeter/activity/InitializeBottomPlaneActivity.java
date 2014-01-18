@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import net.vrallev.android.altimeter.R;
 import net.vrallev.android.altimeter.view.GapProgressView;
@@ -183,6 +184,9 @@ public class InitializeBottomPlaneActivity extends BaseActivity implements Senso
         }
 
         double ascent = (max - min) / 2; // TODO
+
+        Toast.makeText(this, "Ascent " + Math.toDegrees(ascent), Toast.LENGTH_LONG).show();
+
         startActivity(new Intent(this, InitializeOrientationActivity.class));
 
         stopTracking();
