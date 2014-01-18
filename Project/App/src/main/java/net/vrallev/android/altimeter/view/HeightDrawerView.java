@@ -46,6 +46,14 @@ public class HeightDrawerView extends View {
 
     private void constructor(Context context, AttributeSet attrs, int defStyleAttr) {
         mHeightValues = new double[MAX_VALUES];
+//        if (BuildConfig.DEBUG) {
+//            mHeightValues[0] = -10;
+//            mHeightValues[2] = 10;
+//            mHeightValues[3] = 10;
+//            mHeightValues[4] = 10;
+//            mHeightValues[8] = -10;
+//            mHeightValues[9] = -10;
+//        }
 
         mPaintColor = new Paint();
         mPaintColor.setAntiAlias(true);
@@ -116,8 +124,8 @@ public class HeightDrawerView extends View {
     }
 
     private static float getYCoordinate(double[] array, int index, double minHeight, int drawHeight, double heightDif, int offset) {
-        double height1 = array[index] - minHeight;
-        return  (float) (height1 / heightDif * drawHeight) + offset;
+        double height = array[index] - minHeight;
+        return drawHeight - ((float) (height / heightDif * drawHeight)) + offset;
     }
 
     private static double getHeightDif(double[] array) {

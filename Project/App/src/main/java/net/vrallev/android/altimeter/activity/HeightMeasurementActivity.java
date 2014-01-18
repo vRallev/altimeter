@@ -7,9 +7,11 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import net.vrallev.android.altimeter.BuildConfig;
 import net.vrallev.android.altimeter.R;
 import net.vrallev.android.altimeter.file.AbstractCsvWriter;
 import net.vrallev.android.altimeter.location.LocationProvider;
@@ -47,7 +49,7 @@ public class HeightMeasurementActivity extends BaseActivity implements SensorEve
     private TextView mTextViewHeight;
 
     private double mHeightSum;
-    private double mInitialXRotation;
+    private double mInitialXRotation; // TODO: remove
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +60,23 @@ public class HeightMeasurementActivity extends BaseActivity implements SensorEve
         mButtonStart = (Button) findViewById(R.id.button_start);
         mButtonStop = (Button) findViewById(R.id.button_stop);
         mTextViewHeight = (TextView) findViewById(R.id.textView_height);
+
+        View.OnClickListener onClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch (v.getId()) {
+                    case R.id.button_start:
+                        startTracking();
+                        break;
+                    case R.id.button_stop:
+                        stopTracking();
+                        break;
+                }
+            }
+        };
+
+        mButtonStart.setOnClickListener(onClickListener);
+        mButtonStop.setOnClickListener(onClickListener);
 
         LOCATION_PROVIDER.start(this);
 
@@ -87,42 +106,45 @@ public class HeightMeasurementActivity extends BaseActivity implements SensorEve
     }
 
     @Override
+    protected void onStop() {
+        setLoggingEnabled(false);
+        super.onStop();
+    }
+
+    @Override
     public void onBackPressed() {
         LOCATION_PROVIDER.stop();
         super.onBackPressed();
     }
 
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        getMenuInflater().inflate(R.menu.main, menu);
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean onPrepareOptionsMenu(Menu menu) {
-//        menu.findItem(R.id.action_log_start).setVisible(!mLogging);
-//        menu.findItem(R.id.action_log_stop).setVisible(mLogging);
-//        return true;
-//    }
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        // do nothing
+    }
 
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        switch (item.getItemId()) {
-//            case R.id.action_log_start:
-//                setLoggingEnabled(true);
-//                return true;
-//
-//            case R.id.action_log_stop:
-//                setLoggingEnabled(false);
-//                return true;
-//
-//            default:
-//                return super.onOptionsItemSelected(item);
-//        }
-//    }
+    private void startTracking() {
+        mButtonStart.setVisibility(View.GONE);
+        mButtonStop.setVisibility(View.VISIBLE);
+
+        setLoggingEnabled(!BuildConfig.DEBUG);
+    }
+
+    private void stopTracking() {
+        mButtonStart.setVisibility(View.VISIBLE);
+        mButtonStop.setVisibility(View.GONE);
+
+        setLoggingEnabled(false);
+
+        mStoredRotationIndex = 0;
+        mHeightDrawerView.resetHeight();
+        mTextViewHeight.setText("");
+    }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+        if (mButtonStart.getVisibility() == View.VISIBLE) {
+            return;
+        }
 
         SensorManager.getRotationMatrixFromVector(mRotationMatrix, event.values);
 
@@ -158,9 +180,7 @@ public class HeightMeasurementActivity extends BaseActivity implements SensorEve
             mHeightSum += height;
 
             mHeightDrawerView.insertHeight(height);
-
-//            mHeightTextView.setText(getString(R.string.height, height));
-            mTextViewHeight.setText(getString(R.string.height_sum, mHeightSum));
+            mTextViewHeight.setText(getString(R.string.height_sum, mHeightSum * 1000));
 
             mStoredRotationIndex = 0;
         }
@@ -170,11 +190,6 @@ public class HeightMeasurementActivity extends BaseActivity implements SensorEve
         if (mLogging) {
             mTestWriter.addEntry(new TestEvent(System.currentTimeMillis(), location.getLongitude(), location.getLatitude(), distance, x, y, z, height, mHeightSum));
         }
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        // do nothing
     }
 
     private void setLoggingEnabled(boolean enabled) {
@@ -206,8 +221,6 @@ public class HeightMeasurementActivity extends BaseActivity implements SensorEve
     }
 
 
-
-
     public static class TestEvent {
 
         public final long mTimeStamp;
@@ -232,9 +245,6 @@ public class HeightMeasurementActivity extends BaseActivity implements SensorEve
             mHeightSum = heightSum;
         }
     }
-
-
-
 
 
     public static class TestWriterAll extends AbstractCsvWriter<TestEvent> {
