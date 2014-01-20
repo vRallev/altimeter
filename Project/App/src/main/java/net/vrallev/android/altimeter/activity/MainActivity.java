@@ -9,12 +9,15 @@ import android.widget.TextView;
 
 import net.vrallev.android.altimeter.R;
 import net.vrallev.android.altimeter.activity.debug.DevelopmentActivity;
+import net.vrallev.android.altimeter.location.LocationProvider;
 import net.vrallev.android.base.BaseActivity;
 
 /**
  * @author Ralf Wondratschek
  */
 public class MainActivity extends BaseActivity {
+
+    private static final LocationProvider LOCATION_PROVIDER = LocationProvider.getInstance();
 
     private TextView mTextViewCarPosition;
     private TextView mTextViewDevicePosition;
@@ -52,7 +55,15 @@ public class MainActivity extends BaseActivity {
         mTextViewCarPosition = (TextView) findViewById(R.id.textView_car_position);
         mTextViewDevicePosition = (TextView) findViewById(R.id.textView_device_position);
 
+        LOCATION_PROVIDER.start(this);
+
         onCarPositionResult(RESULT_OK, InitializeCarPositionActivity.CarPositionResult.DEFAULT);
+    }
+
+    @Override
+    public void onBackPressed() {
+        LOCATION_PROVIDER.stop();
+        super.onBackPressed();
     }
 
     @Override

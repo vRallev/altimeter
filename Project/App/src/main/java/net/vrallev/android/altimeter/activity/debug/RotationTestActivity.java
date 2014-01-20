@@ -29,8 +29,8 @@ import java.util.Locale;
 @SuppressWarnings("ConstantConditions")
 public class RotationTestActivity extends BaseActivity implements SensorEventListener {
 
-    private static SensorManager sensorManager = AndroidServices.getSensorManager();
-    private static LocationProvider locationProvider = LocationProvider.getInstance();
+    private static final SensorManager SENSOR_MANAGER = AndroidServices.getSensorManager();
+    private static final LocationProvider LOCATION_PROVIDER = LocationProvider.getInstance();
 
     private Sensor mSensor;
 
@@ -63,8 +63,6 @@ public class RotationTestActivity extends BaseActivity implements SensorEventLis
         mHeightTextView = (TextView) findViewById(R.id.textView_height);
         mHeightSumTextView = (TextView) findViewById(R.id.textView_height_sum);
 
-        locationProvider.start(this);
-
         mRotationMatrix = new float[]{
                 1f, 0f, 0f,
                 0f, 1f, 0f,
@@ -73,25 +71,19 @@ public class RotationTestActivity extends BaseActivity implements SensorEventLis
         mStoredXRotation = new double[1024];
         mInitialXRotation = Double.MAX_VALUE;
 
-        mSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+        mSensor = SENSOR_MANAGER.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        sensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        SENSOR_MANAGER.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
     public void onPause() {
-        sensorManager.unregisterListener(this);
+        SENSOR_MANAGER.unregisterListener(this);
         super.onPause();
-    }
-
-    @Override
-    public void onBackPressed() {
-        locationProvider.stop();
-        super.onBackPressed();
     }
 
     @Override
@@ -144,7 +136,7 @@ public class RotationTestActivity extends BaseActivity implements SensorEventLis
         mStoredRotationIndex++;
         checkArraySize();
 
-        Location location = locationProvider.getLocation();
+        Location location = LOCATION_PROVIDER.getLocation();
         double distance = 0;
         double height = 0;
 

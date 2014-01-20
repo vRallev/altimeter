@@ -27,8 +27,8 @@ import java.util.Locale;
 @SuppressWarnings("ConstantConditions")
 public class LogActivity extends BaseActivity implements SensorEventListener {
 
-    private static SensorManager sensorManager = AndroidServices.getSensorManager();
-    private static LocationProvider locationProvider = LocationProvider.getInstance();
+    private static final SensorManager SENSOR_MANAGER = AndroidServices.getSensorManager();
+    private static final LocationProvider LOCATION_PROVIDER = LocationProvider.getInstance();
 
     private Sensor mSensorAcceleration;
     private Sensor mSensorRotation;
@@ -65,15 +65,13 @@ public class LogActivity extends BaseActivity implements SensorEventListener {
         mLatitude = (TextView) findViewById(R.id.textView_gps_latitude);
         mLongitude = (TextView) findViewById(R.id.textView_gps_longitude);
 
-        locationProvider.start(this);
-
         mRotationMatrix = new float[]{
                 1f, 0f, 0f,
                 0f, 1f, 0f,
                 0f, 0f, 1f};
 
-        mSensorAcceleration = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        mSensorRotation = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+        mSensorAcceleration = SENSOR_MANAGER.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mSensorRotation = SENSOR_MANAGER.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
 
         mAccelerationVector = new float[3];
         mRotationVector = new double[3];
@@ -83,8 +81,8 @@ public class LogActivity extends BaseActivity implements SensorEventListener {
     @Override
     public void onResume() {
         super.onResume();
-        sensorManager.registerListener(this, mSensorAcceleration, SensorManager.SENSOR_DELAY_UI);
-        sensorManager.registerListener(this, mSensorRotation, SensorManager.SENSOR_DELAY_UI);
+        SENSOR_MANAGER.registerListener(this, mSensorAcceleration, SensorManager.SENSOR_DELAY_UI);
+        SENSOR_MANAGER.registerListener(this, mSensorRotation, SensorManager.SENSOR_DELAY_UI);
 
         mLongitude.setKeepScreenOn(true);
     }
@@ -93,14 +91,8 @@ public class LogActivity extends BaseActivity implements SensorEventListener {
     public void onPause() {
         mLongitude.setKeepScreenOn(false);
 
-        sensorManager.unregisterListener(this);
+        SENSOR_MANAGER.unregisterListener(this);
         super.onPause();
-    }
-
-    @Override
-    public void onBackPressed() {
-        locationProvider.stop();
-        super.onBackPressed();
     }
 
     @Override
@@ -162,7 +154,7 @@ public class LogActivity extends BaseActivity implements SensorEventListener {
                 break;
         }
 
-        Location location = locationProvider.getLocation();
+        Location location = LOCATION_PROVIDER.getLocation();
         if (location.getLatitude() != mGpsVector[0] || location.getLongitude() != mGpsVector[1]) {
             mLatitude.setText("Latitude: " + location.getLatitude());
             mLongitude.setText("Longitude: " + location.getLongitude());

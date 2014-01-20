@@ -78,8 +78,6 @@ public class HeightMeasurementActivity extends BaseActivity implements SensorEve
         mButtonStart.setOnClickListener(onClickListener);
         mButtonStop.setOnClickListener(onClickListener);
 
-        LOCATION_PROVIDER.start(this);
-
         mRotationMatrix = new float[]{
                 1f, 0f, 0f,
                 0f, 1f, 0f,
@@ -109,12 +107,6 @@ public class HeightMeasurementActivity extends BaseActivity implements SensorEve
     protected void onStop() {
         setLoggingEnabled(false);
         super.onStop();
-    }
-
-    @Override
-    public void onBackPressed() {
-        LOCATION_PROVIDER.stop();
-        super.onBackPressed();
     }
 
     @Override
