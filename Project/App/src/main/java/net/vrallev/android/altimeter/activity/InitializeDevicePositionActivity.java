@@ -9,7 +9,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
-import android.widget.Toast;
+
+import com.google.gson.Gson;
 
 import net.vrallev.android.altimeter.R;
 import net.vrallev.android.base.BaseActivity;
@@ -18,15 +19,17 @@ import net.vrallev.android.base.util.AndroidServices;
 /**
  * @author Ralf Wondratschek
  */
-public class InitializeOrientationActivity extends BaseActivity implements SensorEventListener {
+public class InitializeDevicePositionActivity extends BaseActivity implements SensorEventListener {
+
+    public static final int REQUEST_CODE = 8471336;
 
     private static final SensorManager SENSOR_MANAGER = AndroidServices.getSensorManager();
 
     private static final int MAX_ACCELERATION_COUNT = 3000;
 
     private Button mButtonStart;
-    private Button mButtonStop;
-    private Button mButtonContinue;
+    private Button mButtonReset;
+    private Button mButtonFinish;
     private ProgressBar mProgressBar;
 
     private Sensor mSensorAcceleration;
@@ -43,8 +46,8 @@ public class InitializeOrientationActivity extends BaseActivity implements Senso
         setContentView(R.layout.activity_initialize_orientation);
 
         mButtonStart = (Button) findViewById(R.id.button_start);
-        mButtonStop = (Button) findViewById(R.id.button_stop);
-        mButtonContinue = (Button) findViewById(R.id.button_continue);
+        mButtonReset = (Button) findViewById(R.id.button_reset);
+        mButtonFinish = (Button) findViewById(R.id.button_finish);
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
 
         View.OnClickListener onClickListener = new View.OnClickListener() {
@@ -55,11 +58,11 @@ public class InitializeOrientationActivity extends BaseActivity implements Senso
                         startTracking();
                         break;
 
-                    case R.id.button_stop:
+                    case R.id.button_reset:
                         stopTracking();
                         break;
 
-                    case R.id.button_continue:
+                    case R.id.button_finish:
                         calcDegreeResult();
                         break;
                 }
@@ -67,13 +70,15 @@ public class InitializeOrientationActivity extends BaseActivity implements Senso
         };
 
         mButtonStart.setOnClickListener(onClickListener);
-        mButtonStop.setOnClickListener(onClickListener);
-        mButtonContinue.setOnClickListener(onClickListener);
+        mButtonReset.setOnClickListener(onClickListener);
+        mButtonFinish.setOnClickListener(onClickListener);
 
         mSensorAcceleration = SENSOR_MANAGER.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
 
         mMaxAccelerations = new float[3];
         mMinAccelerations = new float[3];
+
+        setResult(RESULT_CANCELED, DevicePositionResult.DEFAULT.toIntent());
     }
 
     private void initValues() {
@@ -110,15 +115,15 @@ public class InitializeOrientationActivity extends BaseActivity implements Senso
         mProgressBar.setMax(MAX_ACCELERATION_COUNT);
         mProgressBar.setProgress(0);
         mButtonStart.setVisibility(View.GONE);
-        mButtonStop.setVisibility(View.VISIBLE);
-        mButtonContinue.setVisibility(View.VISIBLE);
+        mButtonReset.setVisibility(View.VISIBLE);
+        mButtonFinish.setVisibility(View.VISIBLE);
     }
 
     private void stopTracking() {
         mProgressBar.setProgress(0);
         mButtonStart.setVisibility(View.VISIBLE);
-        mButtonStop.setVisibility(View.GONE);
-        mButtonContinue.setVisibility(View.GONE);
+        mButtonReset.setVisibility(View.GONE);
+        mButtonFinish.setVisibility(View.GONE);
     }
 
     @Override
@@ -146,13 +151,47 @@ public class InitializeOrientationActivity extends BaseActivity implements Senso
     private void calcDegreeResult() {
         double degree = mAccelerationSum / mAccelerationCount;
 
-        Toast.makeText(this, "Degree " + degree, Toast.LENGTH_LONG).show();
-        startActivity(new Intent(this, HeightMeasurementActivity.class));
+//        Toast.makeText(this, "Degree " + degree, Toast.LENGTH_LONG).show();
+//        startActivity(new Intent(this, HeightMeasurementActivity.class));
+//
+//        stopTracking();
 
-        stopTracking();
+        setResult(RESULT_OK, new DevicePositionResult(degree).toIntent());
+        finish();
     }
 
     private static float calcDegree(float accX, float accZ) {
         return accX / accZ * 45;
+    }
+
+    public static class DevicePositionResult {
+
+        public static final DevicePositionResult DEFAULT = new DevicePositionResult(0);
+
+        private static final String KEY = DevicePositionResult.class.getName();
+
+        public static DevicePositionResult fromIntent(Intent intent) {
+            String json = intent.getStringExtra(KEY);
+            if (json == null) {
+                return null;
+            }
+            return new Gson().fromJson(json, DevicePositionResult.class);
+        }
+
+        private final double mDegree;
+
+        public DevicePositionResult(double degree) {
+            mDegree = degree;
+        }
+
+        public double getDegree() {
+            return mDegree;
+        }
+
+        public Intent toIntent() {
+            Intent intent = new Intent();
+            intent.putExtra(KEY, new Gson().toJson(this));
+            return intent;
+        }
     }
 }

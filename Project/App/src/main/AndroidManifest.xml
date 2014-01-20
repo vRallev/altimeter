@@ -31,7 +31,7 @@
                 android:label="@string/app_name"
                 android:screenOrientation="portrait"/>
         <activity
-                android:name=".activity.InitializeOrientationActivity"
+                android:name=".activity.InitializeDevicePositionActivity"
                 android:label="@string/app_name"
                 android:screenOrientation="portrait" />
         <activity

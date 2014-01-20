@@ -23,6 +23,7 @@ public class MainActivity extends BaseActivity {
     private TextView mTextViewDevicePosition;
 
     private InitializeCarPositionActivity.CarPositionResult mCarPositionResult;
+    private InitializeDevicePositionActivity.DevicePositionResult mDevicePositionResult;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +39,7 @@ public class MainActivity extends BaseActivity {
                         break;
 
                     case R.id.button_init_device_position:
-
+                        startActivityForResult(new Intent(MainActivity.this, InitializeDevicePositionActivity.class), InitializeDevicePositionActivity.REQUEST_CODE);
                         break;
 
                     case R.id.button_measure_height:
@@ -58,6 +59,7 @@ public class MainActivity extends BaseActivity {
         LOCATION_PROVIDER.start(this);
 
         onCarPositionResult(RESULT_OK, InitializeCarPositionActivity.CarPositionResult.DEFAULT);
+        onDevicePositionResult(RESULT_OK, InitializeDevicePositionActivity.DevicePositionResult.DEFAULT);
     }
 
     @Override
@@ -91,6 +93,10 @@ public class MainActivity extends BaseActivity {
                 onCarPositionResult(resultCode, InitializeCarPositionActivity.CarPositionResult.fromIntent(data));
                 break;
 
+            case InitializeDevicePositionActivity.REQUEST_CODE:
+                onDevicePositionResult(resultCode, InitializeDevicePositionActivity.DevicePositionResult.fromIntent(data));
+                break;
+
             default:
                 super.onActivityResult(requestCode, resultCode, data);
                 break;
@@ -101,6 +107,13 @@ public class MainActivity extends BaseActivity {
         if (resultCode == RESULT_OK) {
             mCarPositionResult = result;
             mTextViewCarPosition.setText(getString(R.string.ascent, Math.toDegrees(result.getAscent())));
+        }
+    }
+
+    private void onDevicePositionResult(int resultCode, InitializeDevicePositionActivity.DevicePositionResult result) {
+        if (resultCode == RESULT_OK) {
+            mDevicePositionResult = result;
+            mTextViewDevicePosition.setText(getString(R.string.rotation_degree, result.getDegree()));
         }
     }
 }

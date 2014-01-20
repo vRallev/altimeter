@@ -36,6 +36,7 @@
     <string name="initialize_device_position">Initialize device position</string>
     <string name="measure_height">Measure Height</string>
     <string name="ascent">Ascent: %.1f degree</string>
+    <string name="rotation_degree">Rotation: %.1f degree</string>
     <string name="finish">Finish</string>
     <string name="reset">Reset</string>
 
