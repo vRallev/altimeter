@@ -43,7 +43,7 @@ public class MainActivity extends BaseActivity {
                         break;
 
                     case R.id.button_measure_height:
-
+                        startActivity(HeightMeasurementActivity.createIntent(MainActivity.this, mCarPositionResult, mDevicePositionResult));
                         break;
                 }
             }

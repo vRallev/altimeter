@@ -1,6 +1,7 @@
 package net.vrallev.android.altimeter.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -10,6 +11,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import com.google.gson.Gson;
 
 import net.vrallev.android.altimeter.BuildConfig;
 import net.vrallev.android.altimeter.R;
@@ -28,6 +31,15 @@ import java.util.Locale;
  */
 @SuppressWarnings("ConstantConditions")
 public class HeightMeasurementActivity extends BaseActivity implements SensorEventListener {
+
+    private static final Gson GSON = new Gson();
+
+    public static Intent createIntent(Context context, InitializeCarPositionActivity.CarPositionResult carPositionResult, InitializeDevicePositionActivity.DevicePositionResult devicePositionResult) {
+        Intent result = new Intent(context, HeightMeasurementActivity.class);
+        result.putExtra(InitializeCarPositionActivity.CarPositionResult.class.getName(), GSON.toJson(carPositionResult));
+        result.putExtra(InitializeDevicePositionActivity.DevicePositionResult.class.getName(), GSON.toJson(devicePositionResult));
+        return result;
+    }
 
     private static final SensorManager SENSOR_MANAGER = AndroidServices.getSensorManager();
     private static final LocationProvider LOCATION_PROVIDER = LocationProvider.getInstance();
@@ -51,10 +63,16 @@ public class HeightMeasurementActivity extends BaseActivity implements SensorEve
     private double mHeightSum;
     private double mInitialXRotation; // TODO: remove
 
+    private InitializeCarPositionActivity.CarPositionResult mCarPosition;
+    private InitializeDevicePositionActivity.DevicePositionResult mDevicePosition;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_height_measurement);
+
+        mCarPosition = GSON.fromJson(getIntent().getStringExtra(InitializeCarPositionActivity.CarPositionResult.class.getName()), InitializeCarPositionActivity.CarPositionResult.class);
+        mDevicePosition = GSON.fromJson(getIntent().getStringExtra(InitializeDevicePositionActivity.DevicePositionResult.class.getName()), InitializeDevicePositionActivity.DevicePositionResult.class);
 
         mHeightDrawerView = (HeightDrawerView) findViewById(R.id.heightDrawerView);
         mButtonStart = (Button) findViewById(R.id.button_start);
