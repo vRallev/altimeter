@@ -1,10 +1,10 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-    
-    <item android:id="@+id/action_log_start"
-        android:title="@string/log"
-        android:showAsAction="ifRoom" />
+<?xml version="1.0" encoding="utf-8"?>
 
-    <item android:id="@+id/action_log_stop"
-        android:title="@string/stop"
-        android:showAsAction="ifRoom" />
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+            android:id="@+id/action_debug"
+            android:showAsAction="ifRoom"
+            android:title="@string/debug" />
+
 </menu>

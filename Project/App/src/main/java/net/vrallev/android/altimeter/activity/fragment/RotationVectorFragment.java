@@ -11,9 +11,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import net.vrallev.android.altimeter.R;
-import net.vrallev.android.altimeter.activity.LogActivity;
-import net.vrallev.android.altimeter.activity.RotationTestActivity;
-import net.vrallev.android.altimeter.activity.RotationVectorDemo;
+import net.vrallev.android.altimeter.activity.debug.LogActivity;
+import net.vrallev.android.altimeter.activity.debug.RotationTestActivity;
+import net.vrallev.android.altimeter.activity.debug.RotationVectorDemo;
 
 /**
  * @author Ralf Wondratschek

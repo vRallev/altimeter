@@ -9,7 +9,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.google.gson.Gson;
 
 import net.vrallev.android.altimeter.R;
 import net.vrallev.android.altimeter.view.GapProgressView;
@@ -20,9 +21,11 @@ import net.vrallev.android.base.util.Cat;
 /**
  * @author Ralf Wondratschek
  */
-public class InitializeBottomPlaneActivity extends BaseActivity implements SensorEventListener {
+public class InitializeCarPositionActivity extends BaseActivity implements SensorEventListener {
 
     private static final SensorManager SENSOR_MANAGER = AndroidServices.getSensorManager();
+
+    public static final int REQUEST_CODE = 847962;
 
     public static final double INVALID = -100;
 
@@ -30,8 +33,8 @@ public class InitializeBottomPlaneActivity extends BaseActivity implements Senso
     private static final int BIGGEST_GAP = 10;
 
     private Button mButtonStart;
-    private Button mButtonStop;
-    private Button mButtonContinue;
+    private Button mButtonReset;
+    private Button mButtonFinish;
     private GapProgressView mGapProgressView;
     private TextView mTextViewSlower;
 
@@ -43,14 +46,16 @@ public class InitializeBottomPlaneActivity extends BaseActivity implements Senso
     private int mLoggedEventsCount;
     private int mLastPosition;
 
+    private boolean mFinishTracking;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_initialize_bottom_plane);
 
         mButtonStart = (Button) findViewById(R.id.button_start);
-        mButtonStop = (Button) findViewById(R.id.button_stop);
-        mButtonContinue = (Button) findViewById(R.id.button_continue);
+        mButtonReset = (Button) findViewById(R.id.button_reset);
+        mButtonFinish = (Button) findViewById(R.id.button_finish);
         mGapProgressView = (GapProgressView) findViewById(R.id.gap_progress_view);
         mTextViewSlower = (TextView) findViewById(R.id.textView_slower);
 
@@ -62,20 +67,20 @@ public class InitializeBottomPlaneActivity extends BaseActivity implements Senso
                         startTracking();
                         break;
 
-                    case R.id.button_stop:
+                    case R.id.button_reset:
                         stopTracking();
                         break;
 
-                    case R.id.button_continue:
-                        calcAscent();
+                    case R.id.button_finish:
+                        mFinishTracking = true;
                         break;
                 }
             }
         };
 
         mButtonStart.setOnClickListener(onClickListener);
-        mButtonStop.setOnClickListener(onClickListener);
-        mButtonContinue.setOnClickListener(onClickListener);
+        mButtonReset.setOnClickListener(onClickListener);
+        mButtonFinish.setOnClickListener(onClickListener);
 
         mSensorRotation = SENSOR_MANAGER.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
 
@@ -85,6 +90,7 @@ public class InitializeBottomPlaneActivity extends BaseActivity implements Senso
                 0f, 1f, 0f,
                 0f, 0f, 1f};
 
+        setResult(RESULT_CANCELED, CarPositionResult.DEFAULT.toIntent());
     }
 
     private void initValues() {
@@ -118,15 +124,15 @@ public class InitializeBottomPlaneActivity extends BaseActivity implements Senso
         initValues();
         mGapProgressView.setData(mLoggedRotationX);
         mButtonStart.setVisibility(View.GONE);
-        mButtonStop.setVisibility(View.VISIBLE);
-        mButtonContinue.setVisibility(View.VISIBLE);
+        mButtonReset.setVisibility(View.VISIBLE);
+        mButtonFinish.setVisibility(View.VISIBLE);
     }
 
     private void stopTracking() {
         mGapProgressView.setData(null);
         mButtonStart.setVisibility(View.VISIBLE);
-        mButtonStop.setVisibility(View.GONE);
-        mButtonContinue.setVisibility(View.GONE);
+        mButtonReset.setVisibility(View.GONE);
+        mButtonFinish.setVisibility(View.GONE);
     }
 
     @Override
@@ -159,37 +165,41 @@ public class InitializeBottomPlaneActivity extends BaseActivity implements Senso
         }
 
         mLastPosition = pos;
-
-        if (mLoggedEventsCount > LOGGING_ACCURACY * Math.PI) {
-            int biggestGap = getBiggestGap(mLoggedRotationX);
-
-            if (biggestGap < 12) {
-                calcAscent();
-            }
-        }
-
         mLoggedRotationX[pos] = x;
+
+        if (mFinishTracking) {
+            calcAscent(z);
+//        } else if (mLoggedEventsCount > LOGGING_ACCURACY * Math.PI) {
+//            int biggestGap = getBiggestGap(mLoggedRotationX);
+//
+//            if (biggestGap < 12) {
+//                calcAscent(z);
+//            }
+        }
     }
 
-    private void calcAscent() {
+    private void calcAscent(double currentZPosition) {
         double min = 100;
         double max = -100;
 
-        for (double value : mLoggedRotationX) {
+        int maxPosition = 0;
+
+        for (int i = 0; i < mLoggedRotationX.length; i++) {
+
+            double value = mLoggedRotationX[i];
             if (value < min && value != INVALID) {
                 min = value;
             } else if (value > max) {
                 max = value;
+                maxPosition = i;
             }
         }
 
-        double ascent = (max - min) / 2; // TODO
+        double maxZPosition = maxPosition / (double) LOGGING_ACCURACY - Math.PI;
+        double ascent = (max - min) / 2;
 
-        Toast.makeText(this, "Ascent " + Math.toDegrees(ascent), Toast.LENGTH_LONG).show();
-
-        startActivity(new Intent(this, InitializeOrientationActivity.class));
-
-        stopTracking();
+        setResult(RESULT_OK, new CarPositionResult(ascent, maxZPosition, currentZPosition).toIntent());
+        finish();
     }
 
     @SuppressWarnings("ForLoopReplaceableByForEach")
@@ -230,5 +240,49 @@ public class InitializeBottomPlaneActivity extends BaseActivity implements Senso
         pos1 += array.length - pos2 - 1;
 
         return Math.max(max, pos1);
+    }
+
+    @SuppressWarnings("UnusedDeclaration")
+    public static class CarPositionResult {
+
+        public static final CarPositionResult DEFAULT = new CarPositionResult(0, 0, 0);
+
+        private static final String KEY = CarPositionResult.class.getName();
+
+        public static CarPositionResult fromIntent(Intent intent) {
+            String json = intent.getStringExtra(KEY);
+            if (json == null) {
+                return null;
+            }
+            return new Gson().fromJson(json, CarPositionResult.class);
+        }
+
+        private final double mAscent;
+        private final double mMaxZPosition;
+        private final double mCurrentZPosition;
+
+        public CarPositionResult(double ascent, double maxZPosition, double currentZPosition) {
+            mAscent = ascent;
+            mMaxZPosition = maxZPosition;
+            mCurrentZPosition = currentZPosition;
+        }
+
+        public double getAscent() {
+            return mAscent;
+        }
+
+        public double getMaxZPosition() {
+            return mMaxZPosition;
+        }
+
+        public double getCurrentZPosition() {
+            return mCurrentZPosition;
+        }
+
+        public Intent toIntent() {
+            Intent data = new Intent();
+            data.putExtra(KEY, new Gson().toJson(this));
+            return data;
+        }
     }
 }

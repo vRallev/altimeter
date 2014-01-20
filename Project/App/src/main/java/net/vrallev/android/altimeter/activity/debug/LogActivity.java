@@ -1,4 +1,4 @@
-package net.vrallev.android.altimeter.activity;
+package net.vrallev.android.altimeter.activity.debug;
 
 import android.content.Context;
 import android.hardware.Sensor;
@@ -105,7 +105,7 @@ public class LogActivity extends BaseActivity implements SensorEventListener {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.log, menu);
         return true;
     }
 

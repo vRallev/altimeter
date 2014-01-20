@@ -31,5 +31,12 @@
     <string name="continue_text">Continue</string>
     <string name="bottom_plane_description">Press start and make slowly a 360 turn.</string>
     <string name="orientation_description">Press start and accelerate and decelerate your car repeatedly.</string>
+    <string name="debug">Debug</string>
+    <string name="initialize_car_position">Initialize car position</string>
+    <string name="initialize_device_position">Initialize device position</string>
+    <string name="measure_height">Measure Height</string>
+    <string name="ascent">Ascent: %.1f degree</string>
+    <string name="finish">Finish</string>
+    <string name="reset">Reset</string>
 
 </resources>

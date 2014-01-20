@@ -6,7 +6,7 @@ import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.View;
 
-import net.vrallev.android.altimeter.activity.InitializeBottomPlaneActivity;
+import net.vrallev.android.altimeter.activity.InitializeCarPositionActivity;
 
 /**
  * @author Ralf Wondratschek
@@ -62,7 +62,7 @@ public class GapProgressView extends View {
 
         for (int i = 0; i < mData.length; i++) {
             double v = mData[i];
-            if (v != InitializeBottomPlaneActivity.INVALID) {
+            if (v != InitializeCarPositionActivity.INVALID) {
                 float x = i / (float) mData.length * mWidth;
                 canvas.drawLine(x, 0, x, mHeight, mGoodPaint);
             }

@@ -1,4 +1,4 @@
-package net.vrallev.android.altimeter.activity;
+package net.vrallev.android.altimeter.activity.debug;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -48,7 +48,7 @@ public class DevelopmentActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.log, menu);
         return true;
     }
 

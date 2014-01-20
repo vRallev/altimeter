@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import net.vrallev.android.altimeter.R;
-import net.vrallev.android.altimeter.activity.InitializeActivity;
+import net.vrallev.android.altimeter.activity.debug.InitializeActivity;
 
 /**
  * @author Ralf Wondratschek
