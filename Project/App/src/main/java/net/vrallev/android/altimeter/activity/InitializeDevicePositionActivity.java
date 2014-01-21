@@ -16,6 +16,8 @@ import net.vrallev.android.altimeter.R;
 import net.vrallev.android.base.BaseActivity;
 import net.vrallev.android.base.util.AndroidServices;
 
+import java.util.Arrays;
+
 /**
  * @author Ralf Wondratschek
  */
@@ -82,10 +84,8 @@ public class InitializeDevicePositionActivity extends BaseActivity implements Se
     }
 
     private void initValues() {
-        for (int i = 0; i < mMaxAccelerations.length; i++) {
-            mMaxAccelerations[i] = -100;
-            mMinAccelerations[i] = 100;
-        }
+        Arrays.fill(mMaxAccelerations, -100);
+        Arrays.fill(mMinAccelerations, 100);
 
         mAccelerationSum = 0;
         mAccelerationCount = 0;
@@ -150,10 +150,6 @@ public class InitializeDevicePositionActivity extends BaseActivity implements Se
 
     private void calcDegreeResult() {
         double degree = mAccelerationSum / mAccelerationCount;
-
-//        Toast.makeText(this, "Degree " + degree, Toast.LENGTH_LONG).show();
-//        startActivity(new Intent(this, HeightMeasurementActivity.class));
-//
 
         setResult(RESULT_OK, new DevicePositionResult(degree).toIntent());
         stopTracking();

@@ -18,6 +18,8 @@ import net.vrallev.android.base.BaseActivity;
 import net.vrallev.android.base.util.AndroidServices;
 import net.vrallev.android.base.util.Cat;
 
+import java.util.Arrays;
+
 /**
  * @author Ralf Wondratschek
  */
@@ -94,9 +96,7 @@ public class InitializeCarPositionActivity extends BaseActivity implements Senso
     }
 
     private void initValues() {
-        for (int i = 0; i < mLoggedRotationX.length; i++) {
-            mLoggedRotationX[i] = INVALID;
-        }
+        Arrays.fill(mLoggedRotationX, INVALID);
         mLoggedEventsCount = 0;
         mLastPosition = -1;
     }

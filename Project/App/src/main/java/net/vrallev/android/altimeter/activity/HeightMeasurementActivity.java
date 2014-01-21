@@ -66,6 +66,8 @@ public class HeightMeasurementActivity extends BaseActivity implements SensorEve
     private double mYOffset;
     private double mInitialX;
     private double mInitialY;
+    private double mXPercentage;
+    private double mYPercentage;
 
     private InitializeCarPositionActivity.CarPositionResult mCarPosition;
     private InitializeDevicePositionActivity.DevicePositionResult mDevicePosition;
@@ -142,6 +144,9 @@ public class HeightMeasurementActivity extends BaseActivity implements SensorEve
         mInitialX = Double.MAX_VALUE;
         mInitialY = Double.MAX_VALUE;
 
+        mYPercentage = Math.abs(mDevicePosition.getDegree()) / 90;
+        mXPercentage = 1 - mYPercentage;
+
         mButtonStart.setVisibility(View.GONE);
         mButtonStop.setVisibility(View.VISIBLE);
 
@@ -178,10 +183,7 @@ public class HeightMeasurementActivity extends BaseActivity implements SensorEve
             mInitialY = mCarPosition.getInitialYRotation(z);
         }
 
-//        mRotationTextView.setText(getString(R.string.rotation_x, x));
-//        mRotationInitialTextView.setText(getString(R.string.rotation_x, (x - mXOffset)));
-
-        mStoredRotation[mStoredRotationIndex] = (x - mXOffset + mInitialX) * 1 + (y - mYOffset + mInitialY) * 0; // TODO
+        mStoredRotation[mStoredRotationIndex] = (x - mXOffset + mInitialX) * mXPercentage + (y - mYOffset + mInitialY) * mYPercentage;
         mStoredRotationIndex++;
         checkArraySize();
 
