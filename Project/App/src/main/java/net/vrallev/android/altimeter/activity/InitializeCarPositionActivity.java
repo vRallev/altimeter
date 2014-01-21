@@ -168,7 +168,7 @@ public class InitializeCarPositionActivity extends BaseActivity implements Senso
         mLoggedRotationX[pos] = x;
 
         if (mFinishTracking) {
-            calcAscent(z);
+            calcAscent();
 //        } else if (mLoggedEventsCount > LOGGING_ACCURACY * Math.PI) {
 //            int biggestGap = getBiggestGap(mLoggedRotationX);
 //
@@ -178,7 +178,7 @@ public class InitializeCarPositionActivity extends BaseActivity implements Senso
         }
     }
 
-    private void calcAscent(double currentZPosition) {
+    private void calcAscent() {
         double min = 100;
         double max = -100;
 
@@ -198,11 +198,33 @@ public class InitializeCarPositionActivity extends BaseActivity implements Senso
         double maxZPosition = maxPosition / (double) LOGGING_ACCURACY - Math.PI;
         double ascent = (max - min) / 2;
 
-        setResult(RESULT_OK, new CarPositionResult(ascent, maxZPosition, currentZPosition).toIntent());
+        // Test
+//        maxZPosition += Math.PI;
+//        currentZPosition += Math.PI;
+//        double abs = Math.abs(maxZPosition - currentZPosition);
+//        double percentage = 1 - (abs / (Math.PI / 2));
+//        double initialXRotation = ascent * percentage;
+//
+//        currentZPosition = (currentZPosition + Math.PI * (1.5));
+//        if (currentZPosition >= Math.PI * 2) {
+//            currentZPosition -= (Math.PI * 2);
+//        }
+//
+//        abs = Math.abs(maxZPosition - currentZPosition);
+//        percentage = 1 - (abs / (Math.PI / 2));
+//        double initialYRotation = ascent * percentage;
+//
+//        CarPositionResult result = new CarPositionResult(ascent, maxZPosition);
+//
+//        Toast.makeText(this, "" + Math.toDegrees(result.getInitialXRotation(currentZPosition)), Toast.LENGTH_LONG).show();
+//        Toast.makeText(this, "" + Math.toDegrees(result.getInitialYRotation(currentZPosition)), Toast.LENGTH_LONG).show();
+
+        setResult(RESULT_OK, new CarPositionResult(ascent, maxZPosition).toIntent());
+        stopTracking();
         finish();
     }
 
-    @SuppressWarnings("ForLoopReplaceableByForEach")
+    @SuppressWarnings({"ForLoopReplaceableByForEach", "UnusedDeclaration"})
     private static int getBiggestGap(double[] array) {
         int max = -1;
         int cur = 0;
@@ -245,7 +267,7 @@ public class InitializeCarPositionActivity extends BaseActivity implements Senso
     @SuppressWarnings("UnusedDeclaration")
     public static class CarPositionResult {
 
-        public static final CarPositionResult DEFAULT = new CarPositionResult(0, 0, 0);
+        public static final CarPositionResult DEFAULT = new CarPositionResult(0, 0);
 
         private static final String KEY = CarPositionResult.class.getName();
 
@@ -259,12 +281,10 @@ public class InitializeCarPositionActivity extends BaseActivity implements Senso
 
         private final double mAscent;
         private final double mMaxZPosition;
-        private final double mCurrentZPosition;
 
-        public CarPositionResult(double ascent, double maxZPosition, double currentZPosition) {
+        public CarPositionResult(double ascent, double maxZPosition) {
             mAscent = ascent;
             mMaxZPosition = maxZPosition;
-            mCurrentZPosition = currentZPosition;
         }
 
         public double getAscent() {
@@ -275,8 +295,24 @@ public class InitializeCarPositionActivity extends BaseActivity implements Senso
             return mMaxZPosition;
         }
 
-        public double getCurrentZPosition() {
-            return mCurrentZPosition;
+        public double getInitialXRotation(double currentZPosition) {
+            currentZPosition += Math.PI;
+            double maxZPosition = mMaxZPosition + Math.PI;
+
+            double abs = Math.abs(maxZPosition - currentZPosition);
+
+            double percentage = 1 - (abs / (Math.PI / 2));
+
+            return mAscent * percentage;
+        }
+
+        public double getInitialYRotation(double currentZPosition) {
+            currentZPosition -= Math.PI / 2;
+            if (currentZPosition < -Math.PI) {
+                currentZPosition += (Math.PI * 2);
+            }
+
+            return getInitialXRotation(currentZPosition);
         }
 
         public Intent toIntent() {

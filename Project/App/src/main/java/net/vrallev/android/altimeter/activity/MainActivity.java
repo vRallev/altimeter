@@ -63,6 +63,18 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        mTextViewCarPosition.setKeepScreenOn(true);
+    }
+
+    @Override
+    protected void onPause() {
+        mTextViewCarPosition.setKeepScreenOn(false);
+        super.onPause();
+    }
+
+    @Override
     public void onBackPressed() {
         LOCATION_PROVIDER.stop();
         super.onBackPressed();

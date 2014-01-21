@@ -154,9 +154,9 @@ public class InitializeDevicePositionActivity extends BaseActivity implements Se
 //        Toast.makeText(this, "Degree " + degree, Toast.LENGTH_LONG).show();
 //        startActivity(new Intent(this, HeightMeasurementActivity.class));
 //
-//        stopTracking();
 
         setResult(RESULT_OK, new DevicePositionResult(degree).toIntent());
+        stopTracking();
         finish();
     }
 
