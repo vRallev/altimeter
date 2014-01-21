@@ -18,6 +18,8 @@ import net.vrallev.android.altimeter.activity.fragment.RotationMatrixFragment;
 import net.vrallev.android.altimeter.activity.fragment.RotationVectorFragment;
 import net.vrallev.android.base.BaseActivity;
 
+import java.util.Locale;
+
 @SuppressWarnings("ConstantConditions")
 public class DevelopmentActivity extends BaseActivity {
 
@@ -124,17 +126,17 @@ public class DevelopmentActivity extends BaseActivity {
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return getString(R.string.accelerometer).toUpperCase();
+                    return getString(R.string.accelerometer).toUpperCase(Locale.getDefault());
                 case 1:
-                    return getString(R.string.gravity).toUpperCase();
+                    return getString(R.string.gravity).toUpperCase(Locale.getDefault());
                 case 2:
-                    return getString(R.string.linear_acceleration).toUpperCase();
+                    return getString(R.string.linear_acceleration).toUpperCase(Locale.getDefault());
                 case 3:
-                    return getString(R.string.gyroscope).toUpperCase();
+                    return getString(R.string.gyroscope).toUpperCase(Locale.getDefault());
                 case 4:
-                    return getString(R.string.rotation_vector).toUpperCase();
+                    return getString(R.string.rotation_vector).toUpperCase(Locale.getDefault());
                 case 5:
-                    return getString(R.string.rotation_matrix_rot).toUpperCase();
+                    return getString(R.string.rotation_matrix_rot).toUpperCase(Locale.getDefault());
             }
             return null;
         }
