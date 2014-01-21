@@ -6,29 +6,11 @@
         android:layout_height="match_parent">
 
     <Button
-            android:id="@+id/button_init_car_position"
+            android:id="@+id/button_init_device_position"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:text="@string/initialize_car_position" />
-
-    <TextView
-            android:id="@+id/textView_car_position"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/button_init_car_position"
-            android:layout_centerHorizontal="true"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            tools:text="Medium Text" />
-
-    <Button
-            android:id="@+id/button_init_device_position"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/textView_car_position"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="48dp"
             android:text="@string/initialize_device_position" />
 
     <TextView
@@ -41,10 +23,28 @@
             tools:text="Medium Text" />
 
     <Button
+            android:id="@+id/button_init_car_position"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/textView_device_position"
+            android:layout_marginTop="48dp"
+            android:text="@string/initialize_car_position" />
+
+    <TextView
+            android:id="@+id/textView_car_position"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/button_init_car_position"
+            android:layout_centerHorizontal="true"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            tools:text="Medium Text" />
+
+    <Button
             android:id="@+id/button_measure_height"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/textView_device_position"
+            android:layout_below="@id/textView_car_position"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="48dp"
             android:text="@string/measure_height" />
