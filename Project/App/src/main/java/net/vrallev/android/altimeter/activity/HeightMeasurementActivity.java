@@ -189,7 +189,7 @@ public class HeightMeasurementActivity extends BaseActivity implements SensorEve
 
             mHeightSum += height;
 
-            mHeightDrawerView.insertHeight(height);
+            mHeightDrawerView.insertHeight(mHeightSum, distance);
             mTextViewHeight.setText(getString(R.string.height_sum, mHeightSum * 1000));
 
             mStoredRotationIndex = 0;

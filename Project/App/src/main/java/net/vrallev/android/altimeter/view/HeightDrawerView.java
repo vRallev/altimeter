@@ -17,9 +17,10 @@ import java.util.Arrays;
 @SuppressWarnings({"ConstantConditions", "ForLoopReplaceableByForEach", "UnusedDeclaration"})
 public class HeightDrawerView extends View {
 
-    private static final int MAX_VALUES = 10;
+    private static final int MAX_VALUES = 100;
 
     private double[] mHeightValues;
+    private double[] mDistanceValues;
 
     private int mWidth;
     private int mHeight;
@@ -46,14 +47,7 @@ public class HeightDrawerView extends View {
 
     private void constructor(Context context, AttributeSet attrs, int defStyleAttr) {
         mHeightValues = new double[MAX_VALUES];
-//        if (BuildConfig.DEBUG) {
-//            mHeightValues[0] = -10;
-//            mHeightValues[2] = 10;
-//            mHeightValues[3] = 10;
-//            mHeightValues[4] = 10;
-//            mHeightValues[8] = -10;
-//            mHeightValues[9] = -10;
-//        }
+        mDistanceValues = new double[MAX_VALUES];
 
         mPaintColor = new Paint();
         mPaintColor.setAntiAlias(true);
@@ -71,6 +65,22 @@ public class HeightDrawerView extends View {
         mPaintWhite.setStrokeWidth(1);
 
         mPath = new Path();
+
+        resetHeight();
+//        if (BuildConfig.DEBUG) {
+//            mHeightValues[0] = -10;
+//            mHeightValues[2] = 10;
+//            mHeightValues[3] = 10;
+//            mHeightValues[4] = 10;
+//            mHeightValues[8] = -10;
+//            mHeightValues[9] = -10;
+//            mDistanceValues[0] = 5;
+//            mDistanceValues[2] = 10;
+//            mDistanceValues[3] = 25;
+//            mDistanceValues[4] = 5;
+//            mDistanceValues[8] = 30;
+//            mDistanceValues[9] = 15;
+//        }
     }
 
     @Override
@@ -94,8 +104,9 @@ public class HeightDrawerView extends View {
 
         final int drawWidth = mWidth - 2 * offset;
         final int drawHeight = mHeight - 2 * offset;
+        final double distanceMultiplier = drawWidth / (sum(mDistanceValues) - mDistanceValues[0]);
 
-        final float step = drawWidth / (float) (mHeightValues.length - 1);
+//        final float step = drawWidth / (float) (mHeightValues.length - 1);
 
         final double minHeight = getMin(mHeightValues);
 
@@ -104,7 +115,7 @@ public class HeightDrawerView extends View {
         mPath.moveTo(startX, getYCoordinate(mHeightValues, 0, minHeight, drawHeight, heightDif, offset));
 
         for (int i = 1; i < mHeightValues.length; i++) {
-            startX += step;
+            startX += (mDistanceValues[i] * distanceMultiplier);
             mPath.lineTo(startX, getYCoordinate(mHeightValues, i, minHeight, drawHeight, heightDif, offset));
         }
 
@@ -112,14 +123,19 @@ public class HeightDrawerView extends View {
         mPath.reset();
     }
 
-    public void insertHeight(double height) {
+    public void insertHeight(double height, double distance) {
         shiftLeft(mHeightValues);
         mHeightValues[mHeightValues.length - 1] = height;
+
+        shiftLeft(mDistanceValues);
+        mDistanceValues[mDistanceValues.length - 1] = distance;
+
         invalidate();
     }
 
     public void resetHeight() {
         Arrays.fill(mHeightValues, 0);
+        Arrays.fill(mDistanceValues, 0.001);
         invalidate();
     }
 
@@ -158,5 +174,13 @@ public class HeightDrawerView extends View {
 
     private static void shiftLeft(double[] array) {
         System.arraycopy(array, 1, array, 0, array.length - 1);
+    }
+
+    private static double sum(double[] array) {
+        double sum = 0;
+        for (int i = 0; i < array.length; i++) {
+            sum += array[i];
+        }
+        return sum;
     }
 }
