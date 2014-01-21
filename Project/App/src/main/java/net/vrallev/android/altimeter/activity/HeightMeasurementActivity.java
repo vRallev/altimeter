@@ -52,7 +52,7 @@ public class HeightMeasurementActivity extends BaseActivity implements SensorEve
     private Location mOldLocation;
 
     private float[] mRotationMatrix;
-    private double[] mStoredXRotation;
+    private double[] mStoredRotation;
     private int mStoredRotationIndex;
 
     private HeightDrawerView mHeightDrawerView;
@@ -61,7 +61,11 @@ public class HeightMeasurementActivity extends BaseActivity implements SensorEve
     private TextView mTextViewHeight;
 
     private double mHeightSum;
-    private double mInitialXRotation; // TODO: remove
+
+    private double mXOffset;
+    private double mYOffset;
+    private double mInitialX;
+    private double mInitialY;
 
     private InitializeCarPositionActivity.CarPositionResult mCarPosition;
     private InitializeDevicePositionActivity.DevicePositionResult mDevicePosition;
@@ -101,8 +105,7 @@ public class HeightMeasurementActivity extends BaseActivity implements SensorEve
                 0f, 1f, 0f,
                 0f, 0f, 1f};
 
-        mStoredXRotation = new double[1024];
-        mInitialXRotation = Double.MAX_VALUE;
+        mStoredRotation = new double[1024];
 
         mSensor = SENSOR_MANAGER.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
     }
@@ -133,6 +136,12 @@ public class HeightMeasurementActivity extends BaseActivity implements SensorEve
     }
 
     private void startTracking() {
+        mStoredRotationIndex = 0;
+        mXOffset = Double.MAX_VALUE;
+        mYOffset = Double.MAX_VALUE;
+        mInitialX = Double.MAX_VALUE;
+        mInitialY = Double.MAX_VALUE;
+
         mButtonStart.setVisibility(View.GONE);
         mButtonStop.setVisibility(View.VISIBLE);
 
@@ -162,14 +171,17 @@ public class HeightMeasurementActivity extends BaseActivity implements SensorEve
         double y = Math.atan2(mRotationMatrix[6] * -1, Math.sqrt(Math.pow(mRotationMatrix[7], 2) + Math.pow(mRotationMatrix[8], 2)));
         double z = Math.atan2(mRotationMatrix[3], mRotationMatrix[0]);
 
-        if (mInitialXRotation < (Math.PI * -1) || mInitialXRotation > Math.PI) {
-            mInitialXRotation = x;
+        if (mXOffset > Math.PI || mXOffset < -Math.PI || mYOffset > Math.PI || mYOffset < -Math.PI) {
+            mXOffset = x;
+            mYOffset = y;
+            mInitialX = mCarPosition.getInitialXRotation(z);
+            mInitialY = mCarPosition.getInitialYRotation(z);
         }
 
 //        mRotationTextView.setText(getString(R.string.rotation_x, x));
-//        mRotationInitialTextView.setText(getString(R.string.rotation_x, (x - mInitialXRotation)));
+//        mRotationInitialTextView.setText(getString(R.string.rotation_x, (x - mXOffset)));
 
-        mStoredXRotation[mStoredRotationIndex] = x - mInitialXRotation;
+        mStoredRotation[mStoredRotationIndex] = (x - mXOffset + mInitialX) * 1 + (y - mYOffset + mInitialY) * 0; // TODO
         mStoredRotationIndex++;
         checkArraySize();
 
@@ -184,7 +196,7 @@ public class HeightMeasurementActivity extends BaseActivity implements SensorEve
             final double distanceSection = distance / mStoredRotationIndex;
 
             for (int i = 0; i < mStoredRotationIndex; i++) {
-                height += Math.tan(mStoredXRotation[i]) * distanceSection;
+                height += Math.tan(mStoredRotation[i]) * distanceSection;
             }
 
             mHeightSum += height;
@@ -223,10 +235,10 @@ public class HeightMeasurementActivity extends BaseActivity implements SensorEve
     }
 
     private void checkArraySize() {
-        if (mStoredRotationIndex == mStoredXRotation.length) {
-            double[] array = new double[mStoredXRotation.length * 2];
-            System.arraycopy(mStoredXRotation, 0, array, 0, mStoredXRotation.length);
-            mStoredXRotation = array;
+        if (mStoredRotationIndex == mStoredRotation.length) {
+            double[] array = new double[mStoredRotation.length * 2];
+            System.arraycopy(mStoredRotation, 0, array, 0, mStoredRotation.length);
+            mStoredRotation = array;
         }
     }
 
