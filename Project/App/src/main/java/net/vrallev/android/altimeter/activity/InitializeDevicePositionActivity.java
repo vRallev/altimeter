@@ -136,8 +136,7 @@ public class InitializeDevicePositionActivity extends BaseActivity implements Se
         int accZ = (int) (event.values[2] * 10);
 
         if (accZ != 0) {
-            float degree = calcDegree(accX, accZ);
-            mAccelerationSum += degree;
+            mAccelerationSum += calcDegree(accX, accZ);
             mAccelerationCount++;
 
             mProgressBar.setProgress(mAccelerationCount);
@@ -149,15 +148,15 @@ public class InitializeDevicePositionActivity extends BaseActivity implements Se
     }
 
     private void calcDegreeResult() {
-        double degree = mAccelerationSum / mAccelerationCount;
+        double degree = Math.toDegrees(mAccelerationSum) / mAccelerationCount;
 
         setResult(RESULT_OK, new DevicePositionResult(degree).toIntent());
         stopTracking();
         finish();
     }
 
-    private static float calcDegree(float accX, float accZ) {
-        return accX / accZ * 45;
+    private static double calcDegree(float accX, float accZ) {
+        return Math.atan(accX / accZ);
     }
 
     public static class DevicePositionResult {
