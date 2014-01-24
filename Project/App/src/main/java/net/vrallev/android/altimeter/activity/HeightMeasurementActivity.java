@@ -194,19 +194,26 @@ public class HeightMeasurementActivity extends BaseActivity implements SensorEve
         if (mOldLocation != null && !mOldLocation.equals(location)) {
             distance = LocationUtil.getDistanceInKm(location, mOldLocation);
 
-            // we have distance, now we can calculate the height difference
-            final double distanceSection = distance / mStoredRotationIndex;
+            // 10m
+            if (distance > 0.01) {
+                final double distanceSection = distance / mStoredRotationIndex;
 
-            for (int i = 0; i < mStoredRotationIndex; i++) {
-                height += Math.tan(mStoredRotation[i]) * distanceSection;
+                for (int i = 0; i < mStoredRotationIndex; i++) {
+                    height += Math.tan(mStoredRotation[i]) * distanceSection;
+                }
+
+                mHeightSum += height;
+
+                mHeightDrawerView.insertHeight(mHeightSum, distance);
+                mTextViewHeight.setText(getString(R.string.height_sum, mHeightSum * 1000));
+
+                mStoredRotationIndex = 0;
+
+            } else {
+                distance = 0;
+                location = mOldLocation;
+                // ignore new position and use remember old one
             }
-
-            mHeightSum += height;
-
-            mHeightDrawerView.insertHeight(mHeightSum, distance);
-            mTextViewHeight.setText(getString(R.string.height_sum, mHeightSum * 1000));
-
-            mStoredRotationIndex = 0;
         }
 
         mOldLocation = location;
