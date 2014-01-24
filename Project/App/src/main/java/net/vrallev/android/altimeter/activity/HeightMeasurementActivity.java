@@ -14,7 +14,6 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 
-import net.vrallev.android.altimeter.BuildConfig;
 import net.vrallev.android.altimeter.R;
 import net.vrallev.android.altimeter.file.AbstractCsvWriter;
 import net.vrallev.android.altimeter.location.LocationProvider;
@@ -150,7 +149,7 @@ public class HeightMeasurementActivity extends BaseActivity implements SensorEve
         mButtonStart.setVisibility(View.GONE);
         mButtonStop.setVisibility(View.VISIBLE);
 
-        setLoggingEnabled(!BuildConfig.DEBUG);
+        setLoggingEnabled(true);
     }
 
     private void stopTracking() {
@@ -190,6 +189,7 @@ public class HeightMeasurementActivity extends BaseActivity implements SensorEve
         Location location = LOCATION_PROVIDER.getLocation();
         double distance = 0;
         double height = 0;
+        double angle = 0;
 
         if (mOldLocation != null && !mOldLocation.equals(location)) {
             distance = LocationUtil.getDistanceInKm(location, mOldLocation);
@@ -204,6 +204,8 @@ public class HeightMeasurementActivity extends BaseActivity implements SensorEve
 
                 mHeightSum += height;
 
+                angle = Math.toDegrees(Math.atan(height / distance));
+
                 mHeightDrawerView.insertHeight(mHeightSum, distance);
                 mTextViewHeight.setText(getString(R.string.height_sum, mHeightSum * 1000));
 
@@ -212,14 +214,14 @@ public class HeightMeasurementActivity extends BaseActivity implements SensorEve
             } else {
                 distance = 0;
                 location = mOldLocation;
-                // ignore new position and use remember old one
+                // ignore new position and remember old one
             }
         }
 
         mOldLocation = location;
 
         if (mLogging) {
-            mTestWriter.addEntry(new TestEvent(System.currentTimeMillis(), location.getLongitude(), location.getLatitude(), distance, x, y, z, height, mHeightSum));
+            mTestWriter.addEntry(new TestEvent(System.currentTimeMillis(), location.getLongitude(), location.getLatitude(), distance, angle, x, y, z, height, mHeightSum));
         }
     }
 
@@ -232,15 +234,12 @@ public class HeightMeasurementActivity extends BaseActivity implements SensorEve
         invalidateOptionsMenu();
 
         if (enabled) {
-//            mTestWriter = mSwitch.isChecked() ? new TestWriterAll(this) : new TestWriterSimple(this);
             mTestWriter = new TestWriterAll(this);
             mTestWriter.startWriting();
         } else {
             mTestWriter.stopWriting();
             mTestWriter = null;
         }
-
-//        mSwitch.setEnabled(!enabled);
     }
 
     private void checkArraySize() {
@@ -263,8 +262,9 @@ public class HeightMeasurementActivity extends BaseActivity implements SensorEve
         public final double mDistance;
         public final double mHeightDif;
         public final double mHeightSum;
+        public final double mAngle;
 
-        public TestEvent(long timeStamp, double longitude, double latitude, double distance, double XRotation, double YRotation, double ZRotation, double heightDif, double heightSum) {
+        public TestEvent(long timeStamp, double longitude, double latitude, double distance, double angle, double XRotation, double YRotation, double ZRotation, double heightDif, double heightSum) {
             mTimeStamp = timeStamp;
             mLongitude = longitude;
             mDistance = distance;
@@ -274,6 +274,7 @@ public class HeightMeasurementActivity extends BaseActivity implements SensorEve
             mZRotation = ZRotation;
             mHeightDif = heightDif;
             mHeightSum = heightSum;
+            mAngle = angle;
         }
     }
 
@@ -286,31 +287,12 @@ public class HeightMeasurementActivity extends BaseActivity implements SensorEve
 
         @Override
         protected void writeEvent(TestEvent event) throws IOException {
-            writeLine(String.format(Locale.GERMANY, "%d;%f;%f;%f;%f;%f;%f;%f;%f", event.mTimeStamp, event.mLongitude, event.mLatitude, event.mDistance, event.mXRotation, event.mYRotation, event.mZRotation, event.mHeightDif, event.mHeightSum));
+            writeLine(String.format(Locale.GERMANY, "%d;%f;%f;%f;%f;%f;%f;%f;%f;%f", event.mTimeStamp, event.mLongitude, event.mLatitude, event.mDistance, event.mAngle, event.mXRotation, event.mYRotation, event.mZRotation, event.mHeightDif, event.mHeightSum));
         }
 
         @Override
         protected String getHeader() {
-            return "Timestamp;Longitude;Latitude;Distance;X-Rotation;Y-Rotation;Z-Rotation;Height Dif;Height Sum";
+            return "Timestamp;Longitude;Latitude;Distance;Angle (Deg);X-Rotation;Y-Rotation;Z-Rotation;Height Dif;Height Sum";
         }
     }
-
-//    public static class TestWriterSimple extends TestWriterAll {
-//
-//        public TestWriterSimple(Context context) {
-//            super(context);
-//        }
-//
-//        @Override
-//        protected void writeEvent(TestEvent event) throws IOException {
-//            if (event.mDistance != 0) {
-//                writeLine(String.format(Locale.GERMANY, "%d;%f;%f;%f", event.mTimeStamp, event.mDistance, event.mHeightDif, event.mHeightSum));
-//            }
-//        }
-//
-//        @Override
-//        protected String getHeader() {
-//            return "Timestamp;Distance;Height Dif;Height Sum";
-//        }
-//    }
 }
