@@ -1,12 +1,15 @@
 package net.vrallev.android.altimeter.activity;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -22,6 +25,7 @@ import net.vrallev.android.altimeter.view.HeightDrawerView;
 import net.vrallev.android.base.BaseActivity;
 import net.vrallev.android.base.util.AndroidServices;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
 
@@ -156,11 +160,29 @@ public class HeightMeasurementActivity extends BaseActivity implements SensorEve
         mButtonStart.setVisibility(View.VISIBLE);
         mButtonStop.setVisibility(View.GONE);
 
+        final File file = mTestWriter.getFile();
+
         setLoggingEnabled(false);
 
         mStoredRotationIndex = 0;
+        mHeightSum = 0;
         mHeightDrawerView.resetHeight();
         mTextViewHeight.setText("");
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.share_log)
+                .setMessage(getString(R.string.share_log_message, file.getAbsolutePath()))
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent intent = new Intent(Intent.ACTION_SEND);
+                        intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
+                        intent.setType("text/csv");
+                        startActivity(Intent.createChooser(intent, getResources().getString(R.string.share_log)));
+                    }
+                })
+                .setNegativeButton(android.R.string.no, null)
+                .show();
     }
 
     @Override

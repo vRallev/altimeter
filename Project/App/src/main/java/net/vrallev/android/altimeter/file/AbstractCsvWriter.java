@@ -48,6 +48,10 @@ public abstract class AbstractCsvWriter<E> {
         mThread = null;
     }
 
+    public File getFile() {
+        return mFile;
+    }
+
     public void addEntry(E event) {
         synchronized (mEntries) {
             mEntries.add(event);

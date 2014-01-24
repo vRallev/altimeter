@@ -33,5 +33,7 @@
     <string name="rotation_degree">Rotation: %.1f degree</string>
     <string name="finish">Finish</string>
     <string name="reset">Reset</string>
+    <string name="share_log">Share log</string>
+    <string name="share_log_message">Do you want to share or upload the log? You find the log later in following directory:\n\n%s</string>
 
 </resources>
