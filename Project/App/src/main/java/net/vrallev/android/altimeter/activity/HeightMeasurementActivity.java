@@ -121,20 +121,20 @@ public class HeightMeasurementActivity extends BaseActivity implements SensorEve
     public void onResume() {
         super.onResume();
         mHeightDrawerView.setKeepScreenOn(true);
-        SENSOR_MANAGER.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
     public void onPause() {
-        SENSOR_MANAGER.unregisterListener(this);
         mHeightDrawerView.setKeepScreenOn(false);
         super.onPause();
     }
 
     @Override
-    protected void onStop() {
-        setLoggingEnabled(false);
-        super.onStop();
+    protected void onDestroy() {
+        if (mButtonStart.getVisibility() != View.VISIBLE) {
+            stopTracking();
+        }
+        super.onDestroy();
     }
 
     @Override
@@ -155,6 +155,7 @@ public class HeightMeasurementActivity extends BaseActivity implements SensorEve
         mButtonStart.setVisibility(View.GONE);
         mButtonStop.setVisibility(View.VISIBLE);
 
+        SENSOR_MANAGER.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_NORMAL);
         setLoggingEnabled(true);
     }
 
@@ -164,6 +165,7 @@ public class HeightMeasurementActivity extends BaseActivity implements SensorEve
 
         final File file = mTestWriter.getFile();
 
+        SENSOR_MANAGER.unregisterListener(this);
         setLoggingEnabled(false);
 
         mStoredRotationIndex = 0;
