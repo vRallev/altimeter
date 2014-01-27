@@ -15,6 +15,21 @@ android {
         targetSdkVersion 19
     }
 
+    signingConfigs {
+        release {
+            storeFile file(project.getProperties().get('vRallev.keystore'))
+            storePassword project.getProperties().get('vRallev.keystore.password')
+            keyAlias project.getProperties().get('vRallev.key.alias')
+            keyPassword project.getProperties().get('vRallev.key.password')
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+        }
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7

@@ -56,6 +56,7 @@ public class HeightMeasurementActivity extends BaseActivity implements SensorEve
 
     private float[] mRotationMatrix;
     private double[] mStoredRotation;
+    private double[] mLastRotationValues;
     private int mStoredRotationIndex;
 
     private HeightDrawerView mHeightDrawerView;
@@ -111,6 +112,7 @@ public class HeightMeasurementActivity extends BaseActivity implements SensorEve
                 0f, 0f, 1f};
 
         mStoredRotation = new double[1024];
+        mLastRotationValues = new double[3];
 
         mSensor = SENSOR_MANAGER.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
     }
@@ -196,6 +198,17 @@ public class HeightMeasurementActivity extends BaseActivity implements SensorEve
         double x = Math.atan2(mRotationMatrix[7], mRotationMatrix[8]);
         double y = Math.atan2(mRotationMatrix[6] * -1, Math.sqrt(Math.pow(mRotationMatrix[7], 2) + Math.pow(mRotationMatrix[8], 2)));
         double z = Math.atan2(mRotationMatrix[3], mRotationMatrix[0]);
+
+        if (x == 0 && y == 0 && z == 0) {
+            // this weird bug occurs rarely, skip these values
+            x = mLastRotationValues[0];
+            y = mLastRotationValues[1];
+            z = mLastRotationValues[2];
+        } else {
+            mLastRotationValues[0] = x;
+            mLastRotationValues[1] = y;
+            mLastRotationValues[2] = z;
+        }
 
         if (mXOffset > Math.PI || mXOffset < -Math.PI || mYOffset > Math.PI || mYOffset < -Math.PI) {
             mXOffset = x;
