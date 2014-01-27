@@ -23,19 +23,28 @@
             tools:text="Medium Text" />
 
     <Button
-            android:id="@+id/button_init_car_position"
+            android:id="@+id/button_init_car_position_gyro"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_below="@id/textView_device_position"
             android:layout_marginTop="48dp"
-            android:text="@string/initialize_car_position" />
+            android:text="@string/initialize_car_position_gyro" />
+
+    <Button
+            android:id="@+id/button_init_car_position_mag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/button_init_car_position_gyro"
+            android:layout_marginTop="8dp"
+            android:text="@string/initialize_car_position_mag" />
 
     <TextView
             android:id="@+id/textView_car_position"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/button_init_car_position"
+            android:layout_below="@id/button_init_car_position_mag"
             android:layout_centerHorizontal="true"
             android:textAppearance="?android:attr/textAppearanceMedium"
             tools:text="Medium Text" />

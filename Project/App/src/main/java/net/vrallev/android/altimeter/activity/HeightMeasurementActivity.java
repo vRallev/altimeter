@@ -120,14 +120,14 @@ public class HeightMeasurementActivity extends BaseActivity implements SensorEve
     @Override
     public void onResume() {
         super.onResume();
-        mButtonStart.setKeepScreenOn(true);
+        mHeightDrawerView.setKeepScreenOn(true);
         SENSOR_MANAGER.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
     public void onPause() {
         SENSOR_MANAGER.unregisterListener(this);
-        mButtonStop.setKeepScreenOn(false);
+        mHeightDrawerView.setKeepScreenOn(false);
         super.onPause();
     }
 

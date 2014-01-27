@@ -34,8 +34,12 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 switch (v.getId()) {
-                    case R.id.button_init_car_position:
+                    case R.id.button_init_car_position_gyro:
                         startActivityForResult(new Intent(MainActivity.this, InitializeCarPositionActivity.class), InitializeCarPositionActivity.REQUEST_CODE);
+                        break;
+
+                    case R.id.button_init_car_position_mag:
+                        startActivityForResult(new Intent(MainActivity.this, InitializeCarPosition2Activity.class), InitializeCarPosition2Activity.REQUEST_CODE);
                         break;
 
                     case R.id.button_init_device_position:
@@ -49,7 +53,8 @@ public class MainActivity extends BaseActivity {
             }
         };
 
-        findViewById(R.id.button_init_car_position).setOnClickListener(onClickListener);
+        findViewById(R.id.button_init_car_position_gyro).setOnClickListener(onClickListener);
+        findViewById(R.id.button_init_car_position_mag).setOnClickListener(onClickListener);
         findViewById(R.id.button_init_device_position).setOnClickListener(onClickListener);
         findViewById(R.id.button_measure_height).setOnClickListener(onClickListener);
 
@@ -102,6 +107,10 @@ public class MainActivity extends BaseActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case InitializeCarPositionActivity.REQUEST_CODE:
+                onCarPositionResult(resultCode, InitializeCarPositionActivity.CarPositionResult.fromIntent(data));
+                break;
+
+            case InitializeCarPosition2Activity.REQUEST_CODE:
                 onCarPositionResult(resultCode, InitializeCarPositionActivity.CarPositionResult.fromIntent(data));
                 break;
 
